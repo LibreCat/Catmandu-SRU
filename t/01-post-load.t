@@ -13,7 +13,7 @@ BEGIN {
 require_ok($pkg);
 
 my %attrs = (
-  baseUrl => 'http://www.unicat.be/sru',
+  base => 'http://www.unicat.be/sru',
   query => 'dna'
 );
 
