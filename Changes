@@ -1,4 +1,7 @@
 Revision history for Catmandu-SRU
 
+0.0101  2013-01-10
+  - remove debug print
+
 0.01    2012-08-02
   - initial release

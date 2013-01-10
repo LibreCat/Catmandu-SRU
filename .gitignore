@@ -10,3 +10,4 @@ Makefile.PL
 MANIFEST*
 META.*
 MYMETA.*
+Catmandu-SRU-*

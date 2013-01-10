@@ -6,27 +6,23 @@ Catmandu::SRU - Catmandu module for working with SRU data
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.0101
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.0101';
 
 =head1 MODULES
 
-=over
-
-=item * L<Catmandu::Importer::SRU>
-
-=back
+L<Catmandu::Importer::SRU>
 
 =head1 AUTHOR
 
-=over
+Wouter Willaert, C<< <wouterw@inuits.eu> >>
 
-=item * Wouter Willaert, C<< <wouterw@inuits.eu> >>
+=head1 CONTRIBUTORS
 
-=back
+Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
 
 =head1 LICENSE AND COPYRIGHT
 
