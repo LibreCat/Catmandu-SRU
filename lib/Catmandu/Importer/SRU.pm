@@ -93,8 +93,6 @@ sub _api_call {
   $url .= '&startRecord='.$self->_start;
   $url .= '&maximumRecords='.$self->_max_results;
 
-  print $url;
-
   # http get the url.
   my $res = $self->_request($url);
 
