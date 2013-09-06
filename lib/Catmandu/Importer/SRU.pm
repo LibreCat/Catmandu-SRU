@@ -1,6 +1,7 @@
 package Catmandu::Importer::SRU;
 
 use Catmandu::Sane;
+use URI::Escape;
 use Moo;
 use Furl;
 use XML::LibXML::Simple qw(XMLin);
@@ -85,13 +86,13 @@ sub _api_call {
 
   # construct the url
   my $url = $self->base;
-  $url .= '?version='.$self->version;
-  $url .= '&operation='.$self->operation;
-  $url .= '&query='.$self->query;
-  $url .= '&recordSchema='.$self->recordSchema;
-  $url .= '&sortKeys='.$self->sortKeys if $self->sortKeys;
-  $url .= '&startRecord='.$self->_start;
-  $url .= '&maximumRecords='.$self->_max_results;
+  $url .= '?version=' . uri_escape($self->version);
+  $url .= '&operation=' .uri_escape($self->operation);
+  $url .= '&query=' . uri_escape($self->query);
+  $url .= '&recordSchema=' . uri_escape($self->recordSchema);
+  $url .= '&sortKeys=' . uri_esacpe($self->sortKeys) if $self->sortKeys;
+  $url .= '&startRecord=' . uri_escape($self->_start);
+  $url .= '&maximumRecords=' . uri_escape($self->_max_results);
 
   # http get the url.
   my $res = $self->_request($url);
