@@ -4,40 +4,30 @@ use Catmandu::Sane;
 use URI::Escape;
 use Moo;
 use Furl;
-use XML::LibXML::Simple qw(XMLin);
+use XML::LibXML::Simple ();
 
 with 'Catmandu::Importer';
-
-
-# INFO:
-# http://www.loc.gov/standards/sru/
-
-
-# Constants. -------------------------------------------------------------------
-
-use constant VERSION => '1.1';
-use constant OPERATION => 'searchRetrieve';
-use constant RECORDSCHEMA => 'dc';
-
-
-# Properties. ------------------------------------------------------------------
 
 # required.
 has base => (is => 'ro', required => 1);
 has query => (is => 'ro', required => 1);
-has version => (is => 'ro', default => sub { return VERSION; });
-has operation => (is => 'ro', default => sub { return OPERATION; });
-has recordSchema => (is => 'ro', default => sub { return RECORDSCHEMA; });
+has version => (is => 'ro', default => sub { '1.1' });
+has operation => (is => 'ro', default => sub { 'searchRetrieve' });
+has recordSchema => (is => 'ro', default => sub { 'dc' });
+has userAgent => (is => 'ro', default => sub { 'Mozilla/5.0' });
+has furl => (is => 'ro', lazy => 1, builder => sub {
+    Furl->new( agent => $_[0]->userAgent );
+});
 
 # optional.
 has sortKeys => (is => 'ro');
+has recordTag => (is => 'ro');
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
 has _n => (is => 'ro', default => sub { 0 });
 has _start => (is => 'ro', default => sub { 1 });
 has _max_results => (is => 'ro', default => sub { 10 });
-
 
 # Internal Methods. ------------------------------------------------------------
 
@@ -49,12 +39,7 @@ has _max_results => (is => 'ro', default => sub { 10 });
 sub _request {
   my ($self, $url) = @_;
 
-  my $furl = Furl->new(
-    agent => 'Mozilla/5.0',
-    timeout => 10
-  );
-
-  my $res = $furl->get($url);
+  my $res = $self->furl->get($url);
   die $res->status_line unless $res->is_success;
 
   return $res;
@@ -68,10 +53,11 @@ sub _request {
 sub _hashify {
   my ($self, $in) = @_;
 
-  my $xs = XML::LibXML::Simple->new();
+  # TODO: use XML:Struct to support preserving order in XML
+  my $xs = XML::LibXML::Simple->new(); 
   my $out = $xs->XMLin(
 	  $in,
-	  ForceArray => [ 'record' ],
+	  ForceArray => [ 'record' ], # FIXME: hard-coded dc format - WTF?
 	  NsStrip => 1
   );
 
@@ -140,9 +126,14 @@ sub _nextRecord {
   }
 
   # return the next record.
-  return $self->_currentRecordSet->[$self->{_n}++];
-}
+  my $record = $self->_currentRecordSet->[$self->{_n}++];
 
+  if ($self->recordTag) {
+      $record = $record->{recordData}->{$self->recordTag};
+  }
+
+  return $record;
+}
 
 # Public Methods. --------------------------------------------------------------
 
@@ -153,9 +144,6 @@ sub generator {
     $self->_nextRecord;
   };
 }
-
-
-# PerlDoc. ---------------------------------------------------------------------
 
 =head1 NAME
 
@@ -177,14 +165,58 @@ sub generator {
     # ...
   });
 
-  `base` & `query` are required.
-  `version` & `operation` have sensible defaults, '1.1' and 'searchRetrieve' respectively.
+=head1 CONFIGURATION
 
-=cut
+=over
+
+=item base
+
+base URL of the SRU server (required)
+
+=item query
+
+CQL query (required)
+
+=item recordSchema
+
+set to C<dc> by default
+
+=item sortkeys
+
+optional sorting
+
+=item recordTag
+
+optional XML tag name to get record data from. If not given, each record will
+contain a recordData field that contains another tag that contains the actual
+record. For instance use C<dc> to get field C<< $record->{recordData}->{dc} >>.
+
+=item operation
+
+set to C<searchRetrieve> by default
+
+=item version
+
+set to C<1.1> by default.
+
+=item userAgent
+
+HTTP user agent, set to C<Mozilla/5.0> by default.
+
+=item furl
+
+Instance of L<Furl> or compatible class to fetch URLs with.
+
+=back
+
+=head1 METHODS
+
+All methods of L<Catmandu::Importer> and by this L<Catmandu::Iterable> are
+inherited.
 
 =head1 SEE ALSO
 
-L<Catmandu::Iterable>
+L<http://www.loc.gov/standards/sru/>
 
 =cut
 
