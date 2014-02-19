@@ -4,20 +4,20 @@ use Catmandu::Sane;
 use URI::Escape;
 use Moo;
 use Furl;
-use XML::LibXML::Simple qw(XMLin);
+use XML::LibXML::Simple ();
 
 with 'Catmandu::Importer';
-
-use constant VERSION => '1.1';
-use constant OPERATION => 'searchRetrieve';
-use constant RECORDSCHEMA => 'dc';
 
 # required.
 has base => (is => 'ro', required => 1);
 has query => (is => 'ro', required => 1);
-has version => (is => 'ro', default => sub { return VERSION; });
-has operation => (is => 'ro', default => sub { return OPERATION; });
-has recordSchema => (is => 'ro', default => sub { return RECORDSCHEMA; });
+has version => (is => 'ro', default => sub { '1.1' });
+has operation => (is => 'ro', default => sub { 'searchRetrieve' });
+has recordSchema => (is => 'ro', default => sub { 'dc' });
+has userAgent => (is => 'ro', default => sub { 'Mozilla/5.0' });
+has furl => (is => 'ro', lazy => 1, builder => sub {
+    Furl->new( agent => $_[0]->userAgent );
+});
 
 # optional.
 has sortKeys => (is => 'ro');
@@ -27,7 +27,6 @@ has _currentRecordSet => (is => 'ro');
 has _n => (is => 'ro', default => sub { 0 });
 has _start => (is => 'ro', default => sub { 1 });
 has _max_results => (is => 'ro', default => sub { 10 });
-
 
 # Internal Methods. ------------------------------------------------------------
 
@@ -39,12 +38,7 @@ has _max_results => (is => 'ro', default => sub { 10 });
 sub _request {
   my ($self, $url) = @_;
 
-  my $furl = Furl->new(
-    agent => 'Mozilla/5.0',
-    timeout => 10
-  );
-
-  my $res = $furl->get($url);
+  my $res = $self->furl->get($url);
   die $res->status_line unless $res->is_success;
 
   return $res;
@@ -190,6 +184,14 @@ set to C<searchRetrieve> by default
 =item version
 
 set to C<1.1> by default.
+
+=item userAgent
+
+HTTP user agent, set to C<Mozilla/5.0> by default.
+
+=item furl
+
+Instance of L<Furl> or compatible class to fetch URLs with.
 
 =back
 
