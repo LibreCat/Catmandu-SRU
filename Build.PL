@@ -26,6 +26,12 @@ my $builder = Module::Build->new(
     )],
     create_makefile_pl => 'traditional',
     create_license => 1,
+    meta_merge => {
+        resources => {
+            repository => 'https://github.com/LibreCat/Catmandu-SRU',
+            bugtacker => 'https://github.com/LibreCat/Catmandu-SRU/issues',
+        }
+    },    
 );
 
 $builder->create_build_script;
