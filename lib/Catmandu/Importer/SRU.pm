@@ -8,19 +8,9 @@ use XML::LibXML::Simple qw(XMLin);
 
 with 'Catmandu::Importer';
 
-
-# INFO:
-# http://www.loc.gov/standards/sru/
-
-
-# Constants. -------------------------------------------------------------------
-
 use constant VERSION => '1.1';
 use constant OPERATION => 'searchRetrieve';
 use constant RECORDSCHEMA => 'dc';
-
-
-# Properties. ------------------------------------------------------------------
 
 # required.
 has base => (is => 'ro', required => 1);
@@ -143,7 +133,6 @@ sub _nextRecord {
   return $self->_currentRecordSet->[$self->{_n}++];
 }
 
-
 # Public Methods. --------------------------------------------------------------
 
 sub generator {
@@ -153,9 +142,6 @@ sub generator {
     $self->_nextRecord;
   };
 }
-
-
-# PerlDoc. ---------------------------------------------------------------------
 
 =head1 NAME
 
@@ -177,14 +163,44 @@ sub generator {
     # ...
   });
 
-  `base` & `query` are required.
-  `version` & `operation` have sensible defaults, '1.1' and 'searchRetrieve' respectively.
+=head1 CONFIGURATION
 
-=cut
+=over
+
+=item base
+
+base URL of the SRU server (required)
+
+=item query
+
+CQL query (required)
+
+=item recordSchema
+
+set to C<dc> by default
+
+=item sortkeys
+
+optional sorting
+
+=item operation
+
+set to C<searchRetrieve> by default
+
+=item version
+
+set to C<1.1> by default.
+
+=back
+
+=head1 METHODS
+
+All methods of L<Catmandu::Importer> and by this L<Catmandu::Iterable> are
+inherited.
 
 =head1 SEE ALSO
 
-L<Catmandu::Iterable>
+L<http://www.loc.gov/standards/sru/>
 
 =cut
 
