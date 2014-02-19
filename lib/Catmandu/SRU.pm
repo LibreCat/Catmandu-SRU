@@ -24,6 +24,8 @@ Wouter Willaert, C<< <wouterw@inuits.eu> >>
 
 Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
 
+Jakob Voß C<< jakob.voss@gbv.de >>
+
 =head1 LICENSE AND COPYRIGHT
 
 This program is free software; you can redistribute it and/or modify it

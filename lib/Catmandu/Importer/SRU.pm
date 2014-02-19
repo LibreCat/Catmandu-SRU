@@ -21,6 +21,7 @@ has furl => (is => 'ro', lazy => 1, builder => sub {
 
 # optional.
 has sortKeys => (is => 'ro');
+has recordTag => (is => 'ro');
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
@@ -52,10 +53,11 @@ sub _request {
 sub _hashify {
   my ($self, $in) = @_;
 
-  my $xs = XML::LibXML::Simple->new();
+  # TODO: use XML:Struct to support preserving order in XML
+  my $xs = XML::LibXML::Simple->new(); 
   my $out = $xs->XMLin(
 	  $in,
-	  ForceArray => [ 'record' ],
+	  ForceArray => [ 'record' ], # FIXME: hard-coded dc format - WTF?
 	  NsStrip => 1
   );
 
@@ -124,7 +126,13 @@ sub _nextRecord {
   }
 
   # return the next record.
-  return $self->_currentRecordSet->[$self->{_n}++];
+  my $record = $self->_currentRecordSet->[$self->{_n}++];
+
+  if ($self->recordTag) {
+      $record = $record->{recordData}->{$self->recordTag};
+  }
+
+  return $record;
 }
 
 # Public Methods. --------------------------------------------------------------
@@ -176,6 +184,12 @@ set to C<dc> by default
 =item sortkeys
 
 optional sorting
+
+=item recordTag
+
+optional XML tag name to get record data from. If not given, each record will
+contain a recordData field that contains another tag that contains the actual
+record. For instance use C<dc> to get field C<< $record->{recordData}->{dc} >>.
 
 =item operation
 
