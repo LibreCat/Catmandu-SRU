@@ -1,6 +1,7 @@
 package Catmandu::Importer::SRU;
 
 use Catmandu::Sane;
+use Catmandu::Importer::SRU::Parser;
 use URI::Escape;
 use Moo;
 use Furl;
@@ -22,7 +23,9 @@ has furl => (is => 'ro', lazy => 1, builder => sub {
 
 # optional.
 has sortKeys => (is => 'ro');
-has recordTag => (is => 'ro');
+has parser => (is => 'ro' , lazy => 1 , builder => sub {
+    Catmandu::Importer::SRU::Parser->new;
+});
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
@@ -71,7 +74,8 @@ sub _hashify {
        my $message = $xc->findvalue('./d:message',$_);
        my $details = $xc->findvalue('./d:details',$_);
 
-       push @{$diagnostics->{diagnostic}} , { uri => $uri , message => $message , details => $details } ;
+       push @{$diagnostics->{diagnostic}} , 
+                { uri => $uri , message => $message , details => $details } ;
     }
   }
 
@@ -81,11 +85,14 @@ sub _hashify {
       $records->{record} = [];
 
       for ($xc->findnodes('/srw:searchRetrieveResponse/srw:records//srw:record')) {
-        my $recordSchema  = $xc->findvalue('./srw:recordSchema',$_);
-        my $recordPacking = $xc->findvalue('./srw:recordPacking',$_);
-        my $recordData    = '' . $xc->find('./srw:recordData/*',$_)->pop();
+        my $recordSchema   = $xc->findvalue('./srw:recordSchema',$_);
+        my $recordPacking  = $xc->findvalue('./srw:recordPacking',$_);
+        my $recordData     = '' . $xc->find('./srw:recordData/*',$_)->pop();
+        my $recordPosition = $xc->findvalue('./srw:recordPosition',$_);
        
-        push @{$records->{record}} , { recordSchema => $recordSchema , recordPacking => $recordPacking , recordData => $recordData };
+        push @{$records->{record}} , 
+              { recordSchema => $recordSchema , recordPacking => $recordPacking , 
+                recordData => $recordData , recordPosition => $recordPosition };
       }
   }
 
@@ -158,8 +165,8 @@ sub _nextRecord {
   # return the next record.
   my $record = $self->_currentRecordSet->[$self->{_n}++];
 
-  if ($self->recordTag) {
-      $record = $record->{recordData}->{$self->recordTag};
+  if (defined $self->parser) {
+      $record = $self->parser->parse($record);
   }
 
   return $record;
@@ -185,7 +192,7 @@ sub generator {
 
   my %attrs = (
     base => 'http://www.unicat.be/sru',
-    query => '(isbn=0855275103 or isbn=3110035170 or isbn=9010017362 or isbn=9014026188)'
+    query => '(isbn=0855275103 or isbn=3110035170 or isbn=9010017362 or isbn=9014026188)',
   );
 
   my $importer = Catmandu::Importer::SRU->new(%attrs);
@@ -215,12 +222,6 @@ set to C<dc> by default
 
 optional sorting
 
-=item recordTag
-
-optional XML tag name to get record data from. If not given, each record will
-contain a recordData field that contains another tag that contains the actual
-record. For instance use C<dc> to get field C<< $record->{recordData}->{dc} >>.
-
 =item operation
 
 set to C<searchRetrieve> by default
@@ -237,7 +238,12 @@ HTTP user agent, set to C<Mozilla/5.0> by default.
 
 Instance of L<Furl> or compatible class to fetch URLs with.
 
+=item parser
+
+Instance of a Perl package that implements a 'parse' subroutine. See L<Catmandu::Importer::SRU::Parser> for an example.
+
 =back
+
 
 =head1 METHODS
 
