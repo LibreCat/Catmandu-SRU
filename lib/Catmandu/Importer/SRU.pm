@@ -4,7 +4,8 @@ use Catmandu::Sane;
 use URI::Escape;
 use Moo;
 use Furl;
-use XML::LibXML::Simple ();
+use XML::LibXML;
+use XML::LibXML::XPathContext;
 
 with 'Catmandu::Importer';
 
@@ -53,15 +54,42 @@ sub _request {
 sub _hashify {
   my ($self, $in) = @_;
 
-  # TODO: use XML:Struct to support preserving order in XML
-  my $xs = XML::LibXML::Simple->new(); 
-  my $out = $xs->XMLin(
-	  $in,
-	  ForceArray => [ 'record' ], # FIXME: hard-coded dc format - WTF?
-	  NsStrip => 1
-  );
+  my $parser = XML::LibXML->new();
+  my $doc    = $parser->parse_string($in);
+  my $root   = $doc->documentElement;
+  my $xc     = XML::LibXML::XPathContext->new( $root );
+  $xc->registerNs("srw","http://www.loc.gov/zing/srw/");
+  $xc->registerNs("d","http://www.loc.gov/zing/srw/diagnostic/");
+  
+  my $diagnostics = {};
 
-  return $out;
+  if ($xc->exists('/srw:searchRetrieveResponse/srw:diagnostics')) {
+    $diagnostics->{diagnostic} = [];
+
+    for ($xc->findnodes('/srw:searchRetrieveResponse/srw:diagnostics/*')) {
+       my $uri     = $xc->findvalue('./d:uri',$_);
+       my $message = $xc->findvalue('./d:message',$_);
+       my $details = $xc->findvalue('./d:details',$_);
+
+       push @{$diagnostics->{diagnostic}} , { uri => $uri , message => $message , details => $details } ;
+    }
+  }
+
+  my $records = { };
+
+  if ($xc->exists('/srw:searchRetrieveResponse/srw:records')) {
+      $records->{record} = [];
+
+      for ($xc->findnodes('/srw:searchRetrieveResponse/srw:records//srw:record')) {
+        my $recordSchema  = $xc->findvalue('./srw:recordSchema',$_);
+        my $recordPacking = $xc->findvalue('./srw:recordPacking',$_);
+        my $recordData    = '' . $xc->find('./srw:recordData/*',$_)->pop();
+       
+        push @{$records->{record}} , { recordSchema => $recordSchema , recordPacking => $recordPacking , recordData => $recordData };
+      }
+  }
+
+  return { diagnostics => $diagnostics , records => $records };
 }
 
 # Internal: Makes a call to the SRU API.
@@ -98,8 +126,10 @@ sub _nextRecordSet {
   my $hash = $self->_hashify($xml);
 
   # sru specific error checking.
-  if (my $error = $hash->{'diagnostics'}->{'diagnostic'}) {
-    warn 'SRU DIAGNOSTIC: ', $error->{'message'};
+  if (exists $hash->{'diagnostics'}->{'diagnostic'}) {
+    for my $error (@{$hash->{'diagnostics'}->{'diagnostic'}}) {
+        warn 'SRU DIAGNOSTIC: ', $error->{'message'} , ' : ' , $error->{'details'};
+    }
   }
 
   # get to the point.
