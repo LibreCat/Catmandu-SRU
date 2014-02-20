@@ -29,9 +29,9 @@ my $builder = Module::Build->new(
     meta_merge => {
         resources => {
             repository => 'https://github.com/LibreCat/Catmandu-SRU',
-            bugtacker => 'https://github.com/LibreCat/Catmandu-SRU/issues',
+            bugtracker => 'https://github.com/LibreCat/Catmandu-SRU/issues',
         }
-    },    
+    },
 );
 
 $builder->create_build_script;
