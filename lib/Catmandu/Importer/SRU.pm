@@ -4,7 +4,7 @@ use Catmandu::Sane;
 use URI::Escape;
 use Moo;
 use Furl;
-use XML::LibXML::Simple ();
+use XML::Struct;
 
 with 'Catmandu::Importer';
 
@@ -22,6 +22,7 @@ has furl => (is => 'ro', lazy => 1, builder => sub {
 # optional.
 has sortKeys => (is => 'ro');
 has recordTag => (is => 'ro');
+has xml => (is => 'ro', default => sub { 'simple' });
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
@@ -53,13 +54,13 @@ sub _request {
 sub _hashify {
   my ($self, $in) = @_;
 
-  # TODO: use XML:Struct to support preserving order in XML
-  my $xs = XML::LibXML::Simple->new(); 
-  my $out = $xs->XMLin(
-	  $in,
-	  ForceArray => [ 'record' ], # FIXME: hard-coded dc format - WTF?
-	  NsStrip => 1
-  );
+  my $out = XML::Struct::readXML( $in, ns => 'strip' );
+  
+  if ($self->xml eq 'struct') {
+    $out = XML::Struct::simpleXML( $out, depth => 2 );
+  } else { 
+    $out = XML::Struct::simpleXML( $out );
+  }
 
   return $out;
 }
@@ -128,8 +129,15 @@ sub _nextRecord {
   # return the next record.
   my $record = $self->_currentRecordSet->[$self->{_n}++];
 
-  if ($self->recordTag) {
+  if ($self->xml eq 'struct') {
+    $record = $record->{recordData}->[0]->[2];
+    if ($self->recordTag) {
+      $record = $record->[0];
+    }
+  } else {
+    if ($self->recordTag) {
       $record = $record->{recordData}->{$self->recordTag};
+    }
   }
 
   return $record;
@@ -161,9 +169,12 @@ sub generator {
   my $importer = Catmandu::Importer::SRU->new(%attrs);
 
   my $n = $importer->each(sub {
-    my $hashref = $_[0];
+    my $hashref = $_[0]->{recordData};
     # ...
   });
+
+  my $importer = Catmandu::Importer::SRU->new(%attrs, xml => 'struct', recordTag => 1);
+  my $record = $importer->first();
 
 =head1 CONFIGURATION
 
@@ -187,9 +198,20 @@ optional sorting
 
 =item recordTag
 
-optional XML tag name to get record data from. If not given, each record will
-contain a recordData field that contains another tag that contains the actual
-record. For instance use C<dc> to get field C<< $record->{recordData}->{dc} >>.
+optional XML tag name to get record data from. If not given, each record in
+simple XML format will contain a recordData field that contains another tag
+that contains the actual record fields. For instance recordTag C<dc> will
+return the field C<< $record->{recordData}->{dc} >> in simple XML. When option
+C<xml> is set to C<struct>, the actual value of option C<recordTag> does not
+matter.
+
+=item xml
+
+optional selection of XML encoding variant. Set to C<simple> for L<XML::Simple>
+format by default. Use C<struct> to get order-preserving XML as used by
+L<XML::Struct>. Each record will be either an array reference with record
+root element(s), or the first record root element, if option C<recordTag> is 
+enabled.
 
 =item operation
 
