@@ -30,4 +30,4 @@ ok (exists $obj->{_id} , 'marc has _id');
 
 ok (exists $obj->{record} , 'marc as record');
 
-done_testing 5;
+done_testing 7;

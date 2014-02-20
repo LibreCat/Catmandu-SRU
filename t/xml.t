@@ -1,3 +1,18 @@
+package MyParser;
+
+use Moo;
+use XML::Struct;
+
+sub parse {
+	my ($self,$in) = @_;
+
+	my $out = XML::Struct::readXML( $in->{recordData}, ns => 'strip' );
+
+	XML::Struct::simpleXML( $out );
+}
+
+package main;
+
 use strict;
 use Test::More;
 
@@ -7,16 +22,12 @@ my %options = (
     base  => 'http://sru.gbv.de/isil',
     query => 'sru_oai_dc.xml',
     furl  => MockFurl->new,
+    parser => MyParser->new,
 );
-is(Catmandu::Importer::SRU->new(%options)->each(sub { 
-    like $_[0]->{recordData}->{dc}->{title}, qr/ Title/, 'got record';
-}), 2);
 
-$options{recordTag} = 'dc';
-
-is(Catmandu::Importer::SRU->new(%options)->each(sub { 
-    like $_[0]->{title}, qr/ Title/, 'got record';
-}), 2);
+ok(my $i = Catmandu::Importer::SRU->new(%options));
+ok(my $first = $i->first);
+like($first->{title}, qr/ Title/, 'got record');
 
 done_testing;
 

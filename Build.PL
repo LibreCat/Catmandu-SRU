@@ -13,6 +13,7 @@ my $builder = Module::Build->new(
         'Software::License' => 0,
         'Test::Exception' => 0,
         'Test::More' => 0,
+        'XML::Struct' => '0.16',
     },
     requires => {
         'perl' => '5.10.1',
