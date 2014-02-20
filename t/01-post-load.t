@@ -16,6 +16,7 @@ my %attrs = (
   base => 'http://www.unicat.be/sru',
   query => 'dna',
   recordSchema => 'marcxml',
+  parser => 'marcxml' ,
 );
 
 my $importer = Catmandu::Importer::SRU->new(%attrs);

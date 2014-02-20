@@ -1,5 +1,8 @@
 Revision history for Catmandu-SRU
 
+0.031 2014-02-20
+  - adding backwards compatibility for LibXML::Simple responses
+
 0.03  2014-02-20
   - adding support for pluggable SRU response parsers
   - tests

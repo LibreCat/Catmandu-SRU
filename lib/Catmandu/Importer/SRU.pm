@@ -2,6 +2,7 @@ package Catmandu::Importer::SRU;
 
 use Catmandu::Sane;
 use Catmandu::Importer::SRU::Parser;
+use Catmandu::Util qw(:is);
 use URI::Escape;
 use Moo;
 use Furl;
@@ -23,9 +24,7 @@ has furl => (is => 'ro', lazy => 1, builder => sub {
 
 # optional.
 has sortKeys => (is => 'ro');
-has parser => (is => 'ro' , lazy => 1 , builder => sub {
-    Catmandu::Importer::SRU::Parser->new;
-});
+has parser => (is => 'ro');
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
@@ -34,6 +33,24 @@ has _start => (is => 'ro', default => sub { 1 });
 has _max_results => (is => 'ro', default => sub { 10 });
 
 # Internal Methods. ------------------------------------------------------------
+
+sub BUILD {
+  my $self = shift;
+
+  if (is_invocant($self->parser)) {}
+  elsif (is_string($self->parser) && $self->parser =~ /^\w+$/) {
+      my $schema = $self->parser;
+      my $parser;
+      eval "require Catmandu::Importer::SRU::Parser::$schema; \$parser = new Catmandu::Importer::SRU::Parser::$schema";
+      if ($@) {
+        $parser = new Catmandu::Importer::SRU::Parser;
+      }
+      $self->{parser} = $parser;
+  }
+  else {
+    $self->{parser} = Catmandu::Importer::SRU::Parser->new;
+  }
+}
 
 # Internal: HTTP GET something.
 #
@@ -241,6 +258,30 @@ Instance of L<Furl> or compatible class to fetch URLs with.
 =item parser
 
 Instance of a Perl package that implements a 'parse' subroutine. See L<Catmandu::Importer::SRU::Parser> for an example.
+
+E.g.
+ 
+  # Using the 'marcxml' parser available on the Catmandu::Importer::SRU::Package
+
+  my %attrs = (
+    base => 'http://www.unicat.be/sru',
+    query => '(isbn=0855275103 or isbn=3110035170 or isbn=9010017362 or isbn=9014026188)',
+    recordSchema => 'marcxml' ,
+    parser => 'marcxml' ,
+  );
+
+  my $importer = Catmandu::Importer::SRU->new(%attrs);
+
+  # Using a homemade parser
+  
+  my %attrs = (
+    base => 'http://www.unicat.be/sru',
+    query => '(isbn=0855275103 or isbn=3110035170 or isbn=9010017362 or isbn=9014026188)',
+    recordSchema => 'marcxml' ,
+    parser => MyParser->new ,
+  );
+
+  my $importer = Catmandu::Importer::SRU->new(%attrs);
 
 =back
 
