@@ -1,5 +1,10 @@
 Revision history for Catmandu-SRU
 
+0.02  2014-02-20
+  - pod
+  - tests
+  - recordTag option
+
 0.0101  2013-01-10
   - remove debug print
 

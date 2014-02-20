@@ -6,11 +6,11 @@ Catmandu::SRU - Catmandu module for working with SRU data
 
 =head1 VERSION
 
-Version 0.0102
+Version 0.02
 
 =cut
 
-our $VERSION = '0.0102';
+our $VERSION = '0.02';
 
 =head1 MODULES
 
