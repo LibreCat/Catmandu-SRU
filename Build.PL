@@ -18,7 +18,7 @@ my $builder = Module::Build->new(
         'perl' => '5.10.1',
         'Catmandu' => '0.0302',
         'Furl' => '0.41',
-        'XML::LibXML::Simple' => '0.91',
+        'XML::Struct' => '0.16',
         'Moo' => '1.000003',
     },
     add_to_cleanup => [qw(
