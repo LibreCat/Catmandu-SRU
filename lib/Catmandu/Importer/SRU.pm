@@ -210,6 +210,8 @@ sub generator {
   my %attrs = (
     base => 'http://www.unicat.be/sru',
     query => '(isbn=0855275103 or isbn=3110035170 or isbn=9010017362 or isbn=9014026188)',
+    recordSchema => 'marcxml',
+    parser => 'marcxml'
   );
 
   my $importer = Catmandu::Importer::SRU->new(%attrs);
@@ -257,7 +259,8 @@ Instance of L<Furl> or compatible class to fetch URLs with.
 
 =item parser
 
-Instance of a Perl package that implements a 'parse' subroutine. See L<Catmandu::Importer::SRU::Parser> for an example.
+Instance of a Perl package that implements a 'parse' subroutine. See L<Catmandu::Importer::SRU::Parser> for an example. By
+default all SRU responses will return XML::LibXML::Simple output.
 
 E.g.
  
@@ -284,7 +287,6 @@ E.g.
   my $importer = Catmandu::Importer::SRU->new(%attrs);
 
 =back
-
 
 =head1 METHODS
 
