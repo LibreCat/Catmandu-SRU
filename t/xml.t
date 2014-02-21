@@ -1,22 +1,9 @@
-package MyParser;
-
-use Moo;
-use XML::Struct;
-
-sub parse {
-	my ($self,$in) = @_;
-
-	my $out = XML::Struct::readXML( $in->{recordData}, ns => 'strip' );
-
-	XML::Struct::simpleXML( $out );
-}
-
-package main;
-
 use strict;
 use Test::More;
 
 use Catmandu::Importer::SRU;
+use lib 't/lib';
+use MockFurl;
 
 my %options = (
     base  => 'http://sru.gbv.de/isil',
@@ -31,15 +18,17 @@ like($first->{title}, qr/ Title/, 'got record');
 
 done_testing;
 
-package MockFurl;
-use Moo;
-use Furl::Response;
+package MyParser;
 
-sub get {
-    my ($self, $url) = @_;
-    $url =~ /query=([^&]+)/;
-    my $xml = do { local (@ARGV,$/) = "t/$1"; <> };
-    Furl::Response->new(1,200,'Ok',{}, $xml);
+use Moo;
+use XML::Struct;
+
+sub parse {
+	my ($self,$in) = @_;
+
+	my $out = XML::Struct::readXML( $in->{recordData}, ns => 'strip' );
+
+	XML::Struct::simpleXML( $out );
 }
 
 1;
