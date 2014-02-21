@@ -13,13 +13,13 @@ my $builder = Module::Build->new(
         'Software::License' => 0,
         'Test::Exception' => 0,
         'Test::More' => 0,
-        'XML::Struct' => '0.16',
     },
     requires => {
         'perl' => '5.10.1',
         'Catmandu' => '0.0302',
         'Furl' => '0.41',
         'XML::LibXML::Simple' => '0.91',
+        'XML::Struct' => '0.16',
         'Moo' => '1.000003',
     },
     add_to_cleanup => [qw(
