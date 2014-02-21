@@ -25,7 +25,7 @@ has furl => (is => 'ro', lazy => 1, builder => sub {
 
 # optional.
 has sortKeys => (is => 'ro');
-has parser => (is => 'rw');
+has parser => (is => 'rw', default => sub { 'simple' }, coerce => \&_coerce_parser );
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
@@ -35,24 +35,23 @@ has _max_results => (is => 'ro', default => sub { 10 });
 
 # Internal Methods. ------------------------------------------------------------
 
-sub BUILD {
-  my $self = shift;
+sub _coerce_parser {
+  my ($parser) = @_;
 
-  return if is_invocant($self->parser) or is_code_ref($self->parser);
+  return $parser if is_invocant($parser) or is_code_ref($parser);
 
-  if (is_string($self->parser) && !is_number($self->parser)) {
-      my $class = $self->parser =~ /^\+(.+)/ ? $1
-        : 'Catmandu::Importer::SRU::Parser::'.$self->parser;
+  if (is_string($parser) && !is_number($parser)) {
+      my $class = $parser =~ /^\+(.+)/ ? $1
+        : "Catmandu::Importer::SRU::Parser::$parser";
       my $parser = eval "require $class; new $class";
       if ($@) {
         croak $@;
       } else {
-        $self->parser($parser);
-        return;
+        return $parser;
       }
   }
 
-  $self->parser( Catmandu::Importer::SRU::Parser->new );
+  return Catmandu::Importer::SRU::Parser->new;
 }
 
 # Internal: HTTP GET something.

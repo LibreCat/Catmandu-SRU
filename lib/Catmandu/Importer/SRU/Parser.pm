@@ -38,8 +38,9 @@ sub parse {
 
 =head1 DESCRIPTION
 
-Catmandu::Importer::SRU can optionally include a parser to transform the returned records from SRU requests.
-Any such parser needs to implement one instance method 'parse' which receives an SRU-record and returns a perl hash;
+Catmandu::Importer::SRU can optionally include a parser to transform the
+returned records from SRU requests.  Any such parser needs to implement one
+instance method 'parse' which receives an SRU-record and returns a perl hash;
 
 =head1 AUTHOR
 
