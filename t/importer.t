@@ -4,19 +4,20 @@ use Test::More;
 use Test::Exception;
 use Catmandu::Importer::SRU;
 use Catmandu::Importer::SRU::Parser::marcxml;
+require 't/lib/MockFurl.pm';
 
-# FIXME: use MockFurl instead of live query
 my %attrs = (
-  base => 'http://www.unicat.be/sru',
-  query => 'dna',
-  recordSchema => 'marcxml',
+    base => 'http://www.unicat.be/sru',
+    query => 'marcxml.xml',
+    recordSchema => 'marcxml',
+    furl => MockFurl->new,
 );
 
 my $importer = Catmandu::Importer::SRU->new(%attrs);
 
 isa_ok($importer, 'Catmandu::Importer::SRU');
-
 can_ok($importer, 'each');
+is($importer->url, 'http://www.unicat.be/sru?version=1.1&operation=searchRetrieve&query=marcxml.xml&recordSchema=marcxml&startRecord=1&maximumRecords=10');
 
 my $marcparser = Catmandu::Importer::SRU::Parser::marcxml->new;
 my @parsers = ( 

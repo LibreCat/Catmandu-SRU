@@ -6,8 +6,6 @@ use XML::LibXML;
 sub parse {
 	my ($self,$record) = @_;
 
-	return unless defined $record;
-
   my $xml = $record->{recordData};
 
 	my $parser = XML::LibXML->new();
