@@ -301,6 +301,8 @@ Function reference that gets passed the unparsed record.
  
 =back
 
+=back
+
 =head1 METHODS
 
 All methods of L<Catmandu::Importer> and by this L<Catmandu::Iterable> are
