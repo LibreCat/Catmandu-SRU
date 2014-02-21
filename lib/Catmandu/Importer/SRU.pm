@@ -25,7 +25,7 @@ has furl => (is => 'ro', lazy => 1, builder => sub {
 
 # optional.
 has sortKeys => (is => 'ro');
-has parser => (is => 'rw');
+has parser => (is => 'rw', default => sub { 'simple' }, coerce => \&_coerce_parser );
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
@@ -35,24 +35,23 @@ has _max_results => (is => 'ro', default => sub { 10 });
 
 # Internal Methods. ------------------------------------------------------------
 
-sub BUILD {
-  my $self = shift;
+sub _coerce_parser {
+  my ($parser) = @_;
 
-  return if is_invocant($self->parser) or is_code_ref($self->parser);
+  return $parser if is_invocant($parser) or is_code_ref($parser);
 
-  if (is_string($self->parser) && !is_number($self->parser)) {
-      my $class = $self->parser =~ /^\+(.+)/ ? $1
-        : 'Catmandu::Importer::SRU::Parser::'.$self->parser;
+  if (is_string($parser) && !is_number($parser)) {
+      my $class = $parser =~ /^\+(.+)/ ? $1
+        : "Catmandu::Importer::SRU::Parser::$parser";
       my $parser = eval "require $class; new $class";
       if ($@) {
         croak $@;
       } else {
-        $self->parser($parser);
-        return;
+        return $parser;
       }
   }
 
-  $self->parser( Catmandu::Importer::SRU::Parser->new );
+  return Catmandu::Importer::SRU::Parser->new;
 }
 
 # Internal: HTTP GET something.
@@ -119,10 +118,7 @@ sub _hashify {
   return { diagnostics => $diagnostics , records => $records };
 }
 
-# Internal: Makes a call to the SRU API.
-#
-# Returns the XML response body.
-sub _api_call {
+sub url {
   my ($self) = @_;
 
   # construct the url
@@ -135,11 +131,7 @@ sub _api_call {
   $url .= '&startRecord=' . uri_escape($self->_start);
   $url .= '&maximumRecords=' . uri_escape($self->_max_results);
 
-  # http get the url.
-  my $res = $self->_request($url);
-
-  # return the response body.
-  return $res->{content};
+  return $url;
 }
 
 # Internal: gets the next set of results.
@@ -149,7 +141,8 @@ sub _nextRecordSet {
   my ($self) = @_;
 
   # fetch the xml response and hashify it.
-  my $xml = $self->_api_call;
+  my $res  = $self->_request($self->url);
+  my $xml  = $res->{content};
   my $hash = $self->_hashify($xml);
 
   # sru specific error checking.
@@ -185,11 +178,14 @@ sub _nextRecord {
   # return the next record.
   my $record = $self->_currentRecordSet->[$self->{_n}++];
 
-  if (is_code_ref($self->parser)) {
-      return $self->parser->($record);
-  } else {
-      return $self->parser->parse($record);
+  if (defined $record) {
+      if (is_code_ref($self->parser)) {
+          $record = $self->parser->($record);
+      } else {
+          $record = $self->parser->parse($record);
+      }
   }
+  return $record;
 }
 
 # Public Methods. --------------------------------------------------------------
@@ -220,9 +216,10 @@ sub generator {
   my $importer = Catmandu::Importer::SRU->new(%attrs);
 
   my $count = $importer->each(sub {
-	my $schema  = $record->{recordSchema};
-	my $packing = $record->{recordPacking};
-	my $data    = $record->{recordData};
+	my $schema   = $record->{recordSchema};
+	my $packing  = $record->{recordPacking};
+	my $position = $record->{recordPosition};
+	my $data     = $record->{recordData};
     # ...
   });
 
@@ -307,7 +304,11 @@ Function reference that gets passed the unparsed record.
 =head1 METHODS
 
 All methods of L<Catmandu::Importer> and by this L<Catmandu::Iterable> are
-inherited.
+inherited. In addition the following methods are provided:
+
+=head2 url
+
+Return the current SRU request URL (useful for debugging).
 
 =head1 SEE ALSO
 
