@@ -1,34 +1,36 @@
-#!/usr/bin/env perl
-
 use strict;
 use warnings;
 use Test::More;
 use Test::Exception;
+use Catmandu::Importer::SRU;
+use Catmandu::Importer::SRU::Parser::marcxml;
 
-my $pkg;
-BEGIN {
-  $pkg = 'Catmandu::Importer::SRU';
-  use_ok($pkg);
-}
-require_ok($pkg);
-
+# FIXME: use MockFurl instead of live query
 my %attrs = (
   base => 'http://www.unicat.be/sru',
   query => 'dna',
   recordSchema => 'marcxml',
-  parser => 'marcxml' ,
 );
 
 my $importer = Catmandu::Importer::SRU->new(%attrs);
 
-isa_ok($importer, $pkg);
+isa_ok($importer, 'Catmandu::Importer::SRU');
 
 can_ok($importer, 'each');
 
-ok (my $obj = $importer->first , 'parse marc');
+my $marcparser = Catmandu::Importer::SRU::Parser::marcxml->new;
+my @parsers = ( 
+    'marcxml',
+    '+Catmandu::Importer::SRU::Parser::marcxml',
+    $marcparser,
+    sub { $marcparser->parse($_[0]); }
+);
 
-ok (exists $obj->{_id} , 'marc has _id');
+foreach my $parser (@parsers) {
+    my $importer = Catmandu::Importer::SRU->new(%attrs, parser => $parser);
+    ok (my $obj = $importer->first , 'parse marc');
+    ok (exists $obj->{_id} , 'marc has _id');
+    ok (exists $obj->{record} , 'marc as record');
+}
 
-ok (exists $obj->{record} , 'marc as record');
-
-done_testing 7;
+done_testing;
