@@ -185,11 +185,14 @@ sub _nextRecord {
   # return the next record.
   my $record = $self->_currentRecordSet->[$self->{_n}++];
 
-  if (is_code_ref($self->parser)) {
-      return $self->parser->($record);
-  } else {
-      return $self->parser->parse($record);
+  if (defined $record) {
+      if (is_code_ref($self->parser)) {
+          $record = $self->parser->($record);
+      } else {
+          $record = $self->parser->parse($record);
+      }
   }
+  return $record;
 }
 
 # Public Methods. --------------------------------------------------------------
@@ -218,9 +221,10 @@ sub generator {
   my $importer = Catmandu::Importer::SRU->new(%attrs);
 
   my $count = $importer->each(sub {
-	my $schema  = $record->{recordSchema};
-	my $packing = $record->{recordPacking};
-	my $data    = $record->{recordData};
+	my $schema   = $record->{recordSchema};
+	my $packing  = $record->{recordPacking};
+	my $position = $record->{recordPosition};
+	my $data     = $record->{recordData};
     # ...
   });
 
