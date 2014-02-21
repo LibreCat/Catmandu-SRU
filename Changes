@@ -2,6 +2,8 @@ Revision history for Catmandu-SRU
 
 0.032 2014-02-21
   - adding support for pluggable callback functions to parse SRU responses
+  - adding url method
+  - adding simple and struct record parsers
   - tests
   - pod  
 
