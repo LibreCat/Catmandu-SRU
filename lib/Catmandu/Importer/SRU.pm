@@ -118,10 +118,7 @@ sub _hashify {
   return { diagnostics => $diagnostics , records => $records };
 }
 
-# Internal: Makes a call to the SRU API.
-#
-# Returns the XML response body.
-sub _api_call {
+sub url {
   my ($self) = @_;
 
   # construct the url
@@ -134,11 +131,7 @@ sub _api_call {
   $url .= '&startRecord=' . uri_escape($self->_start);
   $url .= '&maximumRecords=' . uri_escape($self->_max_results);
 
-  # http get the url.
-  my $res = $self->_request($url);
-
-  # return the response body.
-  return $res->{content};
+  return $url;
 }
 
 # Internal: gets the next set of results.
@@ -148,7 +141,8 @@ sub _nextRecordSet {
   my ($self) = @_;
 
   # fetch the xml response and hashify it.
-  my $xml = $self->_api_call;
+  my $res  = $self->_request($self->url);
+  my $xml  = $res->{content};
   my $hash = $self->_hashify($xml);
 
   # sru specific error checking.
@@ -308,7 +302,11 @@ Function reference that gets passed the unparsed record.
 =head1 METHODS
 
 All methods of L<Catmandu::Importer> and by this L<Catmandu::Iterable> are
-inherited.
+inherited. In addition the following methods are provided:
+
+=head2 url
+
+Return the current SRU request URL (useful for debugging).
 
 =head1 SEE ALSO
 
