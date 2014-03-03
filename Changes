@@ -1,11 +1,14 @@
 Revision history for Catmandu-SRU
 
+0.033 2014-03-03
+  - credits
+
 0.032 2014-02-21
   - adding support for pluggable callback functions to parse SRU responses
   - adding url method
   - adding simple and struct record parsers
   - tests
-  - pod  
+  - pod
 
 0.031 2014-02-20
   - adding backwards compatibility for LibXML::Simple responses
