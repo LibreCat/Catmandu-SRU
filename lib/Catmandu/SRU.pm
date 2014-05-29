@@ -4,10 +4,6 @@ package Catmandu::SRU;
 
 Catmandu::SRU - Catmandu module for working with SRU data
 
-=head1 VERSION
-
-Version 0.033
-
 =cut
 
 our $VERSION = '0.033';

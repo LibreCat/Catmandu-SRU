@@ -1,3 +1,27 @@
+=head1 NAME
+
+  Catmandu::Importer::SRU::Parser::marcxml - Package transforms SRU responses into Catmandu MARC 
+
+=head1 SYNOPSIS
+
+my %attrs = (
+    base => 'http://www.unicat.be/sru',
+    query => '(isbn=0855275103 or isbn=3110035170 or isbn=9010017362 or isbn=9014026188)',
+    recordSchema => 'marcxml' ,
+    parser => 'marcxml' ,
+);
+
+my $importer = Catmandu::Importer::SRU->new(%attrs);
+
+=head1 DESCRIPTION
+
+Each MARCXML response will be transformed into an format as defined by L<Catmandu::Importer::MARC>
+
+=head1 AUTHOR
+
+Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
+
+=cut
 package Catmandu::Importer::SRU::Parser::marcxml;
 
 use Moo;
@@ -48,30 +72,5 @@ sub parse {
 
   return { _id => $id , record => \@out };
 }
-
-=head1 NAME
-
-  Catmandu::Importer::SRU::Parser::marcxml - Package transforms SRU responses into Catmandu MARC 
-
-=head1 SYNOPSIS
-
-my %attrs = (
-    base => 'http://www.unicat.be/sru',
-    query => '(isbn=0855275103 or isbn=3110035170 or isbn=9010017362 or isbn=9014026188)',
-    recordSchema => 'marcxml' ,
-    parser => 'marcxml' ,
-);
-
-my $importer = Catmandu::Importer::SRU->new(%attrs);
-
-=head1 DESCRIPTION
-
-Each MARCXML response will be transformed into an format as defined by L<Catmandu::Importer::MARC>
-
-=head1 AUTHOR
-
-Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
-
-=cut
 
 1;
