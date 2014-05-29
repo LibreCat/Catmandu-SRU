@@ -314,6 +314,8 @@ Return the current SRU request URL (useful for debugging).
 
 =head1 SEE ALSO
 
+L<Catmandu::Importer>,
+L<Catmandu::Iterable>,
 L<http://www.loc.gov/standards/sru/>
 
 =cut

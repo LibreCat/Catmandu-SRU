@@ -2,6 +2,11 @@
 
 Catmandu::SRU - Catmandu module for working with SRU data
 
+# SYNOPSIS
+
+    # On the command line
+    $ catmandu convert SRU  --base http://www.unicat.be/sru --query data
+
 # MODULES
 
 [Catmandu::Importer::SRU](https://metacpan.org/pod/Catmandu::Importer::SRU)
