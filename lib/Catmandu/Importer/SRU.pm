@@ -103,7 +103,7 @@ sub _hashify {
   if ($xc->exists('/srw:searchRetrieveResponse/srw:records')) {
       $records->{record} = [];
 
-      for ($xc->findnodes('/srw:searchRetrieveResponse/srw:records//srw:record')) {
+      for ($xc->findnodes('/srw:searchRetrieveResponse/srw:records/srw:record')) {
         my $recordSchema   = $xc->findvalue('./srw:recordSchema',$_);
         my $recordPacking  = $xc->findvalue('./srw:recordPacking',$_);
         my $recordData     = '' . $xc->find('./srw:recordData/*',$_)->pop();
