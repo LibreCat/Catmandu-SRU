@@ -66,6 +66,8 @@ Wouter Willaert, `<wouterw@inuits.eu>`
 
 Patrick Hochstenbach, `<patrick.hochstenbach at ugent.be>`
 
+Nicolas Steenlant, `<nicolas.steenlant at ugent.be>`
+
 Jakob Voss `jakob.voss@gbv.de`
 
 # LICENSE AND COPYRIGHT
