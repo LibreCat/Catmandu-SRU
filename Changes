@@ -1,6 +1,8 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+
+0.035  2014-06-18 10:01:24 CEST
   - Add better support for namespace prefixes
 
 0.034  2014-05-29 16:45:37 CEST

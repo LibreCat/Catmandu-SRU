@@ -6,7 +6,7 @@ Catmandu::SRU - Catmandu module for working with SRU data
 
 =cut
 
-our $VERSION = '0.034';
+our $VERSION = '0.035';
 
 =head1 SYNOPSIS
 
