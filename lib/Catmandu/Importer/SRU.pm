@@ -43,7 +43,11 @@ sub _coerce_parser {
   if (is_string($parser) && !is_number($parser)) {
       my $class = $parser =~ /^\+(.+)/ ? $1
         : "Catmandu::Importer::SRU::Parser::$parser";
-      my $parser = eval "require $class; new $class";
+
+      my $parser;
+      eval {
+          $parser = Catmandu::Util::require_package($class)->new;
+      };
       if ($@) {
         croak $@;
       } else {

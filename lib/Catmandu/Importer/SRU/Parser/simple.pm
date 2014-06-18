@@ -22,8 +22,8 @@ Jakob Voss C<< voss@gbv.de >>
 =cut
 package Catmandu::Importer::SRU::Parser::simple;
 use strict;
-use Moo;
 use XML::LibXML::Simple ();
+use Moo;
 
 has xmlsimple => ( is => 'ro', default => sub { XML::LibXML::Simple->new } );
 
