@@ -68,7 +68,9 @@ Patrick Hochstenbach, `<patrick.hochstenbach at ugent.be>`
 
 Nicolas Steenlant, `<nicolas.steenlant at ugent.be>`
 
-Jakob Voss `jakob.voss@gbv.de`
+Jakob Voss `jakob.voss at gbv.de`
+
+Johann Rolschewski `rolschewski at gmail.com`
 
 # LICENSE AND COPYRIGHT
 

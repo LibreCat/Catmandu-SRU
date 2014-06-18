@@ -1,6 +1,7 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+  - Add better support for namespace prefixes
 
 0.034  2014-05-29 16:45:37 CEST
   - building code with Dist::Milla
