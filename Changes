@@ -2,6 +2,9 @@ Revision history for Catmandu-SRU
 
 {{$NEXT}}
 
+0.036  2014-06-18 20:24:19 CEST
+  - Fixing prove vs perl testing bug
+  
 0.035  2014-06-18 10:01:24 CEST
   - Add better support for namespace prefixes
 
