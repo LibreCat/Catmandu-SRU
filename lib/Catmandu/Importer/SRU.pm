@@ -174,9 +174,9 @@ sub _nextRecord {
 
   # check for a exhaused recordset.
   if ($self->_n >= $self->_max_results) {
-	  $self->{_currentRecordSet} = $self->_nextRecordSet;
 	  $self->{_start} += $self->_max_results;
 	  $self->{_n} = 0;
+    $self->{_currentRecordSet} = $self->_nextRecordSet;
   }
 
   # return the next record.

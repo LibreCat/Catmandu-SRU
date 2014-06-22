@@ -34,4 +34,17 @@ foreach my $parser (@parsers) {
     ok (exists $obj->{record} , 'marc as record');
 }
 
+%attrs = (
+    base => 'http://www.unicat.be/sru',
+    query => 'test',
+    recordSchema => 'marcxml',
+    furl => MockFurlMany->new,
+);
+
+$importer = Catmandu::Importer::SRU->new(%attrs);
+isa_ok($importer, 'Catmandu::Importer::SRU');
+can_ok($importer, 'each');
+ok (scalar @{$importer->to_array()} == 23, 'get all records');
+
+
 done_testing;
