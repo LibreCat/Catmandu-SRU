@@ -2,6 +2,9 @@ Revision history for Catmandu-SRU
 
 {{$NEXT}}
 
+0.037  2014-06-22 10:24:58 CEST
+  - Fixing multiple harvesting of first record set bug
+  
 0.036  2014-06-18 20:24:19 CEST
   - Fixing prove vs perl testing bug
   
