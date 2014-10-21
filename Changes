@@ -1,6 +1,7 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+  - Added missing test requirement Test::Exception
 
 0.037  2014-06-22 10:24:58 CEST
   - Fixing multiple harvesting of first record set bug
