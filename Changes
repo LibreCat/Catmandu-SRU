@@ -1,6 +1,8 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+
+0.038  2014-10-21 22:56:17 CEST
   - Added missing test requirement Test::Exception
 
 0.037  2014-06-22 10:24:58 CEST
