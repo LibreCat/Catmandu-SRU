@@ -204,7 +204,7 @@ sub generator {
 
 =head1 NAME
 
-  Catmandu::Importer::SRU - Package that imports SRU data
+Catmandu::Importer::SRU - Package that imports SRU data
 
 =head1 SYNOPSIS
 

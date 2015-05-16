@@ -1,3 +1,23 @@
+package Catmandu::Importer::SRU::Parser::simple;
+use strict;
+use XML::LibXML::Simple ();
+use Moo;
+
+has xmlsimple => ( is => 'ro', default => sub { XML::LibXML::Simple->new } );
+
+sub parse {
+	my ($self, $record) = @_;
+
+    $record->{recordData} = $self->xmlsimple->XMLin(
+        $record->{recordData} , KeepRoot => 1, NsStrip => 1
+    );
+
+    $record;
+}
+
+1;
+__END__
+
 =head1 NAME
 
 Catmandu::Importer::SRU::Parser::simple - parse SRU records as simple XML
@@ -17,24 +37,6 @@ mixed-content XML.
 
 Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
 
-Jakob Voss C<< voss@gbv.de >>
+Jakob Voss C<< <jakob.voss at gbv.de> >>
 
 =cut
-package Catmandu::Importer::SRU::Parser::simple;
-use strict;
-use XML::LibXML::Simple ();
-use Moo;
-
-has xmlsimple => ( is => 'ro', default => sub { XML::LibXML::Simple->new } );
-
-sub parse {
-	my ($self, $record) = @_;
-
-    $record->{recordData} = $self->xmlsimple->XMLin(
-        $record->{recordData} , KeepRoot => 1, NsStrip => 1
-    );
-
-    $record;
-}
-
-1;

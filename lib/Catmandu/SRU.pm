@@ -11,11 +11,11 @@ our $VERSION = '0.038';
 =head1 SYNOPSIS
 
  # On the command line
- $ catmandu convert SRU  --base http://www.unicat.be/sru --query data
+ $ catmandu convert SRU --base http://www.unicat.be/sru --query data
 
- $ catmandu convert SRU  --base http://www.unicat.be/sru --query data  --recordSchma marcxml
+ $ catmandu convert SRU --base http://www.unicat.be/sru --query data  --recordSchma marcxml
 
- $ catmandu convert SRU  --base http://www.unicat.be/sru --query data  --recordSchma marcxml --parser marcxml
+ $ catmandu convert SRU --base http://www.unicat.be/sru --query data  --recordSchma marcxml --parser marcxml
  
  # create a config file: catmandu.yml
  $ cat catmandu.yml
@@ -34,11 +34,11 @@ our $VERSION = '0.038';
   $ catmandu convert unicat --query data --fix 'marc_map("245a","title"); retain_field("title")' to CSV
 
   # The example above in perl
-  use Catmandu -load;
+  use Catmandu qw(-load -all);
 
-  my $importer = Catmandu->importer('unicat', query => 'data');
-  my $fixer    = Catmandu->fixer(['marc_map("245a","title")','retain_field("title")']);
-  my $export   = Catmandu->exporter('CSV');
+  my $importer = importer('unicat', query => 'data');
+  my $fixer    = fixer(['marc_map("245a","title")','retain_field("title")']);
+  my $export   = exporter('CSV');
 
   $exporter->add_many(
   	$fixer->fix($importer);
@@ -48,7 +48,7 @@ our $VERSION = '0.038';
  
 =head1 MODULES
 
-=over 2
+=over
 
 =item L<Catmandu::Importer::SRU>
 
@@ -82,9 +82,9 @@ Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
 
 Nicolas Steenlant, C<< <nicolas.steenlant at ugent.be> >>
 
-Jakob Voss C<< jakob.voss at gbv.de >>
+Jakob Voss C<< <jakob.voss at gbv.de> >>
 
-Johann Rolschewski C<< rolschewski at gmail.com >>
+Johann Rolschewski C<< <rolschewski at gmail.com> >>
 
 =head1 LICENSE AND COPYRIGHT
 
