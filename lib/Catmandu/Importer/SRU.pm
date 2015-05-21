@@ -3,6 +3,7 @@ package Catmandu::Importer::SRU;
 use Catmandu::Sane;
 use Catmandu::Importer::SRU::Parser;
 use Catmandu::Util qw(:is);
+use Scalar::Util qw(blessed);
 use URI::Escape;
 use Moo;
 use Furl;
@@ -26,6 +27,7 @@ has furl => (is => 'ro', lazy => 1, builder => sub {
 # optional.
 has sortKeys => (is => 'ro');
 has parser => (is => 'rw', default => sub { 'simple' }, coerce => \&_coerce_parser );
+has xslt => (is => 'ro', coerce => \&_coerce_xslt );
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
@@ -58,6 +60,13 @@ sub _coerce_parser {
   return Catmandu::Importer::SRU::Parser->new;
 }
 
+sub _coerce_xslt {
+  eval {
+    Catmandu::Util::require_package('Catmandu::XML::Transformer')
+      ->new( stylesheet => $_[0] )
+  } or croak $@;
+}
+
 # Internal: HTTP GET something.
 #
 # $url - the url.
@@ -77,6 +86,7 @@ sub _request {
 # $in - the raw XML input.
 #
 # Returns a hash representation of the given XML.
+# records are kept as XML::LibXML::Element 
 sub _hashify {
   my ($self, $in) = @_;
 
@@ -110,9 +120,9 @@ sub _hashify {
       for ($xc->findnodes('/srw:searchRetrieveResponse/srw:records/srw:record')) {
         my $recordSchema   = $xc->findvalue('./srw:recordSchema',$_);
         my $recordPacking  = $xc->findvalue('./srw:recordPacking',$_);
-        my $recordData     = '' . $xc->find('./srw:recordData/*',$_)->pop();
+        my $recordData     = $xc->find('./srw:recordData/*',$_)->pop();
         my $recordPosition = $xc->findvalue('./srw:recordPosition',$_);
-       
+
         push @{$records->{record}} , 
               { recordSchema => $recordSchema , recordPacking => $recordPacking , 
                 recordData => $recordData , recordPosition => $recordPosition };
@@ -183,6 +193,19 @@ sub _nextRecord {
   my $record = $self->_currentRecordSet->[$self->{_n}++];
 
   if (defined $record) {
+      
+      my $xml = $record->{recordData};
+      $xml = $self->xslt->transform($xml) if $self->xslt;
+
+      # "rootless" XML
+      if (blessed($xml) and $xml->isa('XML::LibXML::Document') and !$xml->documentElement) {
+          $xml = $xml->textContent;
+      }
+      $record->{recordData} = blessed($xml) ? $xml->toString : $xml;
+#          blessed($xml) 
+          #           ? ( $xml->documentElement ? $xml->toString : $xml->textContent )
+          #  : $xml;
+
       if (is_code_ref($self->parser)) {
           $record = $self->parser->($record);
       } else {
@@ -264,6 +287,11 @@ set to C<dc> by default
 =item sortkeys
 
 optional sorting
+
+=item xslt
+
+preprocess XML records with XSLT script(s) given as comma separated list or
+array reference. Requires L<Catmandu::XML>.
 
 =item operation
 

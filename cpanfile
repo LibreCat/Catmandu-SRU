@@ -16,3 +16,6 @@ requires 'XML::Struct', '0.16';
 requires 'XML::LibXML::Simple', '0.91';
 requires 'URI::Escape' , '1.60';
 
+feature 'xslt' => sub {
+    requires 'Catmandu::XML', '0.15';
+};
