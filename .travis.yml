@@ -6,7 +6,10 @@ perl:
     - "5.14"
     - "5.12"
     - "5.10"
-install: cpanm --with-all-features --installdeps .
+sudo: required
+install:
+    - sudo apt-get install libxml-libxml-perl 
+    - cpanm --with-all-features --notest --skip-satisfied --installdeps .
 env: RELEASE_TESTING=1 AUTOMATED_TESTING=1 AUTHOR_TESTING=1
 after_success:
     - cpanm --quiet --notest --skip-satisfied Devel::Cover::Report::Coveralls
