@@ -4,7 +4,7 @@ Catmandu::Importer::SRU::Parser::struct - transform SRU responses into structure
 
 =head1 SYNOPSIS
 
-    my $importer = Catmandu::Importer::SRU->new( 
+    my $importer = Catmandu::Importer::SRU->new(
         base   => $base,
         query  => $query,
         parser => 'struct'
@@ -22,13 +22,13 @@ reader as following, if needed:
 
     my $reader = XML::Struct::Reader->new( %options );
 
-    my $importer = Catmandu::Importer::SRU->new( 
+    my $importer = Catmandu::Importer::SRU->new(
         base   => $base,
         query  => $query,
-        parser => sub { 
+        parser => sub {
             $reader->readDocument(
                 XML::LibXML::Reader->new( string => $_[0]->{recordData} )
-            ); 
+            );
         },
 
     );
@@ -42,6 +42,8 @@ package Catmandu::Importer::SRU::Parser::struct;
 use strict;
 use Moo;
 use XML::Struct ();
+
+our $VERSION = '0.038';
 
 has _reader => (is => 'ro', lazy => 1, builder => sub {
     XML::Struct::Reader->new();

@@ -10,6 +10,8 @@ use Carp;
 use XML::LibXML;
 use XML::LibXML::XPathContext;
 
+our $VERSION = '0.038';
+
 with 'Catmandu::Importer';
 
 # required.
@@ -86,7 +88,7 @@ sub _hashify {
   my $xc     = XML::LibXML::XPathContext->new( $root );
   $xc->registerNs("srw","http://www.loc.gov/zing/srw/");
   $xc->registerNs("d","http://www.loc.gov/zing/srw/diagnostic/");
-  
+
   my $diagnostics = {};
 
   if ($xc->exists('/srw:searchRetrieveResponse/srw:diagnostics')) {
@@ -97,7 +99,7 @@ sub _hashify {
        my $message = $xc->findvalue('./d:message',$_);
        my $details = $xc->findvalue('./d:details',$_);
 
-       push @{$diagnostics->{diagnostic}} , 
+       push @{$diagnostics->{diagnostic}} ,
                 { uri => $uri , message => $message , details => $details } ;
     }
   }
@@ -112,9 +114,9 @@ sub _hashify {
         my $recordPacking  = $xc->findvalue('./srw:recordPacking',$_);
         my $recordData     = '' . $xc->find('./srw:recordData/*',$_)->pop();
         my $recordPosition = $xc->findvalue('./srw:recordPosition',$_);
-       
-        push @{$records->{record}} , 
-              { recordSchema => $recordSchema , recordPacking => $recordPacking , 
+
+        push @{$records->{record}} ,
+              { recordSchema => $recordSchema , recordPacking => $recordPacking ,
                 recordData => $recordData , recordPosition => $recordPosition };
       }
   }
@@ -237,7 +239,7 @@ sub generator {
   );
 
   # Using a homemade parser
-  
+
   my $importer = Catmandu::Importer::SRU->new(
     base => 'http://www.unicat.be/sru',
     query => '(isbn=0855275103 or isbn=3110035170 or isbn=9010017362 or isbn=9014026188)',
@@ -302,7 +304,7 @@ instance C<marcxml> will create a C<Catmandu::Importer::SRU::Parser::marcxml>.
 =item
 
 Function reference that gets passed the unparsed record.
- 
+
 =back
 
 =back

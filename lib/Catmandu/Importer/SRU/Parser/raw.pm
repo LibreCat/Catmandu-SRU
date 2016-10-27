@@ -20,7 +20,7 @@ Transforms each SRU record into a Perl hash containing the following fields:
   * recordSchema - the SRU record schema (see: http://www.loc.gov/standards/sru/recordSchemas/index.html)
   * recordPacking - the SRU format (can be 'string' or 'xml')
   * recordPosition - the result number
-  * recordData - the unparsed record payload 
+  * recordData - the unparsed record payload
 
 =head1 AUTHOR
 
@@ -30,6 +30,8 @@ Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
 package Catmandu::Importer::SRU::Parser::raw;
 
 use Moo;
+
+our $VERSION = '0.038';
 
 sub parse {
 	return $_[1];

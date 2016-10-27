@@ -11,6 +11,8 @@ Makefile.PL
 MANIFEST*
 META.json
 MYMETA.*
+local
 Catmandu-*
+cpanfile.snapshot
 !*.t
 .perl-version

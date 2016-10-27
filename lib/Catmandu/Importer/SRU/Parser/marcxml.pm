@@ -1,6 +1,6 @@
 =head1 NAME
 
-  Catmandu::Importer::SRU::Parser::marcxml - Package transforms SRU responses into Catmandu MARC 
+  Catmandu::Importer::SRU::Parser::marcxml - Package transforms SRU responses into Catmandu MARC
 
 =head1 SYNOPSIS
 
@@ -27,6 +27,8 @@ package Catmandu::Importer::SRU::Parser::marcxml;
 use Moo;
 use XML::LibXML;
 
+our $VERSION = '0.038';
+
 sub parse {
 	my ($self,$record) = @_;
 
@@ -35,7 +37,7 @@ sub parse {
 	my $parser = XML::LibXML->new();
   my $doc    = $parser->parse_string($xml);
   my $root   = $doc->documentElement;
-  
+
   my @out;
   my $id = undef;
 

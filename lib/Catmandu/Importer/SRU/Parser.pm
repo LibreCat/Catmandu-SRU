@@ -3,6 +3,8 @@ package Catmandu::Importer::SRU::Parser;
 use Moo;
 use XML::LibXML::Simple qw(XMLin);
 
+our $VERSION = '0.038';
+
 sub parse {
 	my ($self,$record) = @_;
 
@@ -17,7 +19,7 @@ sub parse {
 
 =head1 NAME
 
-  Catmandu::Importer::SRU::Parser - Package transforms SRU responses into Perl 
+  Catmandu::Importer::SRU::Parser - Package transforms SRU responses into Perl
 
 =head1 SYNOPSIS
 

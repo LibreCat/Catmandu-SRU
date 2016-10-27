@@ -25,6 +25,8 @@ use strict;
 use XML::LibXML::Simple ();
 use Moo;
 
+our $VERSION = '0.038';
+
 has xmlsimple => ( is => 'ro', default => sub { XML::LibXML::Simple->new } );
 
 sub parse {
