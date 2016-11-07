@@ -72,10 +72,6 @@ Jakob Voss `jakob.voss at gbv.de`
 
 Johann Rolschewski `rolschewski at gmail.com`
 
-# MAINTAINER
-
-Christian Pietsch `<cpietsch+librecat at uni-bielefeld.de>`
-
 # LICENSE AND COPYRIGHT
 
 This program is free software; you can redistribute it and/or modify it
