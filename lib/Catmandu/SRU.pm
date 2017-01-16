@@ -11,11 +11,11 @@ our $VERSION = '0.038';
 =head1 SYNOPSIS
 
  # On the command line
- $ catmandu convert SRU  --base http://www.unicat.be/sru --query data
+ $ catmandu convert SRU --base http://www.unicat.be/sru --query data
 
- $ catmandu convert SRU  --base http://www.unicat.be/sru --query data  --recordSchma marcxml
+ $ catmandu convert SRU --base http://www.unicat.be/sru --query data  --recordSchema marcxml
 
- $ catmandu convert SRU  --base http://www.unicat.be/sru --query data  --recordSchma marcxml --parser marcxml
+ $ catmandu convert SRU --base http://www.unicat.be/sru --query data  --recordSchema marcxml --parser marcxml
  
  # create a config file: catmandu.yml
  $ cat catmandu.yml
@@ -82,9 +82,9 @@ Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
 
 Nicolas Steenlant, C<< <nicolas.steenlant at ugent.be> >>
 
-Jakob Voss C<< jakob.voss at gbv.de >>
+Jakob Voss C<< <jakob.voss at gbv.de> >>
 
-Johann Rolschewski C<< rolschewski at gmail.com >>
+Johann Rolschewski C<< <jorol at cpan.org> >>
 
 =head1 LICENSE AND COPYRIGHT
 
