@@ -4,6 +4,7 @@ on 'test', sub {
   requires 'Test::Simple', '1.001003';  # Core
   requires 'Test::More', '1.001003';    # Core
   requires 'Test::Exception';
+  requires 'Test::Pod';
   requires 'XML::XPath', '1.13';
 };
 
