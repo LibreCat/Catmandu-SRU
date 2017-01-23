@@ -32,8 +32,8 @@ has xslt => (is => 'ro', coerce => \&_coerce_xslt );
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
 has _n => (is => 'ro', default => sub { 0 });
-has _start => (is => 'ro', default => sub { 1 });
-has _max_results => (is => 'ro', default => sub { 10 });
+has startRecord => (is => 'ro', default => sub { 1 });
+has maximumRecords => (is => 'ro', default => sub { 10 });
 
 # Internal Methods. ------------------------------------------------------------
 
@@ -142,8 +142,8 @@ sub url {
   $url .= '&query=' . uri_escape($self->query);
   $url .= '&recordSchema=' . uri_escape($self->recordSchema);
   $url .= '&sortKeys=' . uri_esacpe($self->sortKeys) if $self->sortKeys;
-  $url .= '&startRecord=' . uri_escape($self->_start);
-  $url .= '&maximumRecords=' . uri_escape($self->_max_results);
+  $url .= '&startRecord=' . uri_escape($self->startRecord);
+  $url .= '&maximumRecords=' . uri_escape($self->maximumRecords);
 
   return $url;
 }
@@ -183,8 +183,8 @@ sub _nextRecord {
   $self->{_currentRecordSet} = $self->_nextRecordSet unless $self->_currentRecordSet;
 
   # check for a exhaused recordset.
-  if ($self->_n >= $self->_max_results) {
-	  $self->{_start} += $self->_max_results;
+  if ($self->_n >= $self->maximumRecords) {
+	  $self->{startRecord} += $self->maximumRecords;
 	  $self->{_n} = 0;
     $self->{_currentRecordSet} = $self->_nextRecordSet;
   }
@@ -287,6 +287,14 @@ set to C<dc> by default
 =item sortkeys
 
 optional sorting
+
+=item startRecord
+
+Record number to start retrieving from . Set to 1 by default.
+
+=item maximumRecords
+
+Number of records to retrieve in one one HTTP request. Set to 10 by default.
 
 =item xslt
 
