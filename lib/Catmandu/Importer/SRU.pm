@@ -3,6 +3,7 @@ package Catmandu::Importer::SRU;
 use Catmandu::Sane;
 use Catmandu::Importer::SRU::Parser;
 use Catmandu::Util qw(:is);
+use Scalar::Util qw(blessed);
 use URI::Escape;
 use Moo;
 use Furl;
@@ -26,12 +27,13 @@ has furl => (is => 'ro', lazy => 1, builder => sub {
 # optional.
 has sortKeys => (is => 'ro');
 has parser => (is => 'rw', default => sub { 'simple' }, coerce => \&_coerce_parser );
+has xslt => (is => 'ro', coerce => \&_coerce_xslt );
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
 has _n => (is => 'ro', default => sub { 0 });
-has _start => (is => 'ro', default => sub { 1 });
-has _max_results => (is => 'ro', default => sub { 10 });
+has startRecord => (is => 'ro', default => sub { 1 });
+has maximumRecords => (is => 'ro', default => sub { 10 });
 
 # Internal Methods. ------------------------------------------------------------
 
@@ -58,6 +60,13 @@ sub _coerce_parser {
   return Catmandu::Importer::SRU::Parser->new;
 }
 
+sub _coerce_xslt {
+  eval {
+    Catmandu::Util::require_package('Catmandu::XML::Transformer')
+      ->new( stylesheet => $_[0] )
+  } or croak $@;
+}
+
 # Internal: HTTP GET something.
 #
 # $url - the url.
@@ -77,6 +86,7 @@ sub _request {
 # $in - the raw XML input.
 #
 # Returns a hash representation of the given XML.
+# records are kept as XML::LibXML::Element 
 sub _hashify {
   my ($self, $in) = @_;
 
@@ -110,9 +120,9 @@ sub _hashify {
       for ($xc->findnodes('/srw:searchRetrieveResponse/srw:records/srw:record')) {
         my $recordSchema   = $xc->findvalue('./srw:recordSchema',$_);
         my $recordPacking  = $xc->findvalue('./srw:recordPacking',$_);
-        my $recordData     = '' . $xc->find('./srw:recordData/*',$_)->pop();
+        my $recordData     = $xc->find('./srw:recordData/*',$_)->pop();
         my $recordPosition = $xc->findvalue('./srw:recordPosition',$_);
-       
+
         push @{$records->{record}} , 
               { recordSchema => $recordSchema , recordPacking => $recordPacking , 
                 recordData => $recordData , recordPosition => $recordPosition };
@@ -132,8 +142,8 @@ sub url {
   $url .= '&query=' . uri_escape($self->query);
   $url .= '&recordSchema=' . uri_escape($self->recordSchema);
   $url .= '&sortKeys=' . uri_esacpe($self->sortKeys) if $self->sortKeys;
-  $url .= '&startRecord=' . uri_escape($self->_start);
-  $url .= '&maximumRecords=' . uri_escape($self->_max_results);
+  $url .= '&startRecord=' . uri_escape($self->startRecord);
+  $url .= '&maximumRecords=' . uri_escape($self->maximumRecords);
 
   return $url;
 }
@@ -173,8 +183,8 @@ sub _nextRecord {
   $self->{_currentRecordSet} = $self->_nextRecordSet unless $self->_currentRecordSet;
 
   # check for a exhaused recordset.
-  if ($self->_n >= $self->_max_results) {
-	  $self->{_start} += $self->_max_results;
+  if ($self->_n >= $self->maximumRecords) {
+	  $self->{startRecord} += $self->maximumRecords;
 	  $self->{_n} = 0;
     $self->{_currentRecordSet} = $self->_nextRecordSet;
   }
@@ -183,6 +193,19 @@ sub _nextRecord {
   my $record = $self->_currentRecordSet->[$self->{_n}++];
 
   if (defined $record) {
+      
+      my $xml = $record->{recordData};
+      $xml = $self->xslt->transform($xml) if $self->xslt;
+
+      # "rootless" XML
+      if (blessed($xml) and $xml->isa('XML::LibXML::Document') and !$xml->documentElement) {
+          $xml = $xml->textContent;
+      }
+      $record->{recordData} = blessed($xml) ? $xml->toString : $xml;
+#          blessed($xml) 
+          #           ? ( $xml->documentElement ? $xml->toString : $xml->textContent )
+          #  : $xml;
+
       if (is_code_ref($self->parser)) {
           $record = $self->parser->($record);
       } else {
@@ -204,7 +227,7 @@ sub generator {
 
 =head1 NAME
 
-  Catmandu::Importer::SRU - Package that imports SRU data
+Catmandu::Importer::SRU - Package that imports SRU data
 
 =head1 SYNOPSIS
 
@@ -264,6 +287,19 @@ set to C<dc> by default
 =item sortkeys
 
 optional sorting
+
+=item startRecord
+
+Record number to start retrieving from . Set to 1 by default.
+
+=item maximumRecords
+
+Number of records to retrieve in one one HTTP request. Set to 10 by default.
+
+=item xslt
+
+preprocess XML records with XSLT script(s) given as comma separated list or
+array reference. Requires L<Catmandu::XML>.
 
 =item operation
 

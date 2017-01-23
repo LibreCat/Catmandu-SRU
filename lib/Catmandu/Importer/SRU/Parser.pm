@@ -15,9 +15,12 @@ sub parse {
     $record;
 }
 
+1;
+__END__
+
 =head1 NAME
 
-  Catmandu::Importer::SRU::Parser - Package transforms SRU responses into Perl 
+Catmandu::Importer::SRU::Parser - Package transforms SRU responses into Perl 
 
 =head1 SYNOPSIS
 
@@ -47,5 +50,3 @@ instance method 'parse' which receives an SRU-record and returns a perl hash;
 Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
 
 =cut
-
-1;

@@ -11,13 +11,31 @@ my %options = (
     parser => 'simple',
 );
 
-ok my $importer = Catmandu::Importer::SRU->new(%options);
+my $record = {
+    'dc' => {
+      'contributor' => [
+        'Alice',
+        'Bob'
+      ],
+      'date' => {
+        'content' => '2013',
+        'xmlns:srw_dc' => 'info:srw/schema/1/dc-schema'
+      },
+      'title' => 'Sample Title',
+      'xmlns:dc' => 'http://purl.org/dc/elements/1.1/',
+      'xmlns:oai_dc' => 'http://www.openarchives.org/OAI/2.0/oai_dc/'
+    }
+};
 
-ok my $record = $importer->first;
-is_deeply $record->{recordData}->{dc}->{contributor}, ['Alice','Bob'];
+is_deeply(
+    Catmandu::Importer::SRU->new(%options)->first->{recordData}, $record,
+    'parser=simple'
+);
 
-# simple as default option
 delete $options{parser};
-is_deeply(Catmandu::Importer::SRU->new(%options)->first, $record);
+is_deeply(
+    Catmandu::Importer::SRU->new(%options)->first->{recordData}, $record,
+    'simple as default option'
+);
 
 done_testing;
