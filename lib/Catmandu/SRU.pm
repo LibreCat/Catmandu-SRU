@@ -62,6 +62,8 @@ our $VERSION = '0.038';
 
 =item L<Catmandu::Importer::SRU::Parser::marcxml>
 
+=item L<Catmandu::Importer::SRU::Parser::meta>
+
 =back
 
 =head1 SEE ALSO
