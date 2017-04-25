@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<searchRetrieveResponse xmlns="http://www.loc.gov/zing/srw/"><version>1.1</version><numberOfRecords>23</numberOfRecords><records><record><recordSchema>MARC21-xml</recordSchema><recordPacking>xml</recordPacking><recordData><slim:record xmlns:slim="http://www.loc.gov/MARC21/slim" type="Bibliographic">
+<searchRetrieveResponse xmlns="http://www.loc.gov/zing/srw/"><version>1.1</version><numberOfRecords>23</numberOfecords><records><record><recordSchema>MARC21-xml</recordSchema><recordPacking>xml</recordPacking><recordData><slim:record xmlns:slim="http://www.loc.gov/MARC21/slim" type="Bibliographic">
     <slim:leader>01817nas a2200577 c 4500</slim:leader>
     <slim:controlfield tag="001">011197684</slim:controlfield>
     <slim:controlfield tag="003">DE-101</slim:controlfield>
