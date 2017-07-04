@@ -34,6 +34,11 @@ sub parse {
 
   my $xml = $record->{recordData};
 
+  my $ns = $1 if $xml =~ m/^<(.*):record>/;
+  if ($ns) {
+    $xml =~ s|<$ns:record>|<$ns:record xmlns:$ns="http://www.loc.gov/MARC21/slim">|;
+  }
+
 	my $parser = XML::LibXML->new();
   my $doc    = $parser->parse_string($xml);
   my $root   = $doc->documentElement;
