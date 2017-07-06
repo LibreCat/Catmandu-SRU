@@ -85,6 +85,8 @@ sub _hashify {
   my $parser = XML::LibXML->new();
   my $doc    = $parser->parse_string($in);
   my $root   = $doc->documentElement;
+  my @namespaces = $root->getNamespaces;
+
   my $xc     = XML::LibXML::XPathContext->new( $root );
   $xc->registerNs("srw","http://www.loc.gov/zing/srw/");
   $xc->registerNs("d","http://www.loc.gov/zing/srw/diagnostic/");
@@ -112,8 +114,17 @@ sub _hashify {
       for ($xc->findnodes('/srw:searchRetrieveResponse/srw:records/srw:record')) {
         my $recordSchema   = $xc->findvalue('./srw:recordSchema',$_);
         my $recordPacking  = $xc->findvalue('./srw:recordPacking',$_);
-        my $recordData     = '' . $xc->find('./srw:recordData/*',$_)->pop();
+        my $recordData     = $xc->find('./srw:recordData/*',$_)->pop();
         my $recordPosition = $xc->findvalue('./srw:recordPosition',$_);
+
+        # All the root level namespaces to the record Element.
+        for (@namespaces) {
+            my $ns_prefix = $_->declaredPrefix;
+            my $ns_uri    = $_->declaredURI;
+            unless ($ns_uri =~ m{http://www.loc.gov/zing/srw/}) {
+                $recordData->setNamespace($ns_uri,$ns_prefix,0);
+            }
+        }
 
         push @{$records->{record}} ,
               { recordSchema => $recordSchema , recordPacking => $recordPacking ,

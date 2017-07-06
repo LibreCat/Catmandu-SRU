@@ -32,22 +32,13 @@ our $VERSION = '0.038';
 sub parse {
 	my ($self,$record) = @_;
 
-  my $xml = $record->{recordData};
-
-  my $ns = $1 if $xml =~ m/^<(.*):record>/;
-  if ($ns) {
-    $xml =~ s|<$ns:record>|<$ns:record xmlns:$ns="http://www.loc.gov/MARC21/slim">|;
-  }
-
-	my $parser = XML::LibXML->new();
-  my $doc    = $parser->parse_string($xml);
-  my $root   = $doc->documentElement;
+  my $marc   = $record->{recordData};
 
   my @out;
   my $id = undef;
 
-  for my $field ($root->getChildrenByLocalName('*')) {
-      my $name = $field->localname;
+  for my $field ($marc->getChildrenByLocalName('*')) {
+      my $name  = $field->localname;
       my $value = $field->textContent // '';
       if ($name eq 'leader') {
            push @out, [ 'LDR', ' ', ' ', '_', $value ];

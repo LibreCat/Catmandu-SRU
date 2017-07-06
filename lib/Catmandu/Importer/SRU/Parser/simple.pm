@@ -33,7 +33,7 @@ sub parse {
 	my ($self, $record) = @_;
 
     $record->{recordData} = $self->xmlsimple->XMLin(
-        $record->{recordData} , KeepRoot => 1, NsStrip => 1
+        $record->{recordData}->toString , KeepRoot => 1, NsStrip => 1
     );
 
     $record;

@@ -51,8 +51,7 @@ has _reader => (is => 'ro', lazy => 1, builder => sub {
 
 sub parse {
 	my ($self, $record) = @_;
-
-    my $stream = XML::LibXML::Reader->new( string => $record->{recordData} );
+    my $stream = XML::LibXML::Reader->new( string => $record->{recordData}->toString(0,0) );
     $self->_reader->readDocument( $stream );
 }
 

@@ -5,11 +5,11 @@ Catmandu::SRU - Catmandu module for working with SRU data
 # SYNOPSIS
 
     # On the command line
-    $ catmandu convert SRU  --base http://www.unicat.be/sru --query data
+    $ catmandu convert SRU --base http://www.unicat.be/sru --query data
 
-    $ catmandu convert SRU  --base http://www.unicat.be/sru --query data  --recordSchma marcxml
+    $ catmandu convert SRU --base http://www.unicat.be/sru --query data  --recordSchema marcxml
 
-    $ catmandu convert SRU  --base http://www.unicat.be/sru --query data  --recordSchma marcxml --parser marcxml
+    $ catmandu convert SRU --base http://www.unicat.be/sru --query data  --recordSchema marcxml --parser marcxml
     
     # create a config file: catmandu.yml
     $ cat catmandu.yml
@@ -68,9 +68,9 @@ Patrick Hochstenbach, `<patrick.hochstenbach at ugent.be>`
 
 Nicolas Steenlant, `<nicolas.steenlant at ugent.be>`
 
-Jakob Voss `jakob.voss at gbv.de`
+Jakob Voss `<jakob.voss at gbv.de>`
 
-Johann Rolschewski `rolschewski at gmail.com`
+Johann Rolschewski `<jorol at cpan.org>`
 
 # LICENSE AND COPYRIGHT
 
