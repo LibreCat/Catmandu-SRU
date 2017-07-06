@@ -72,8 +72,8 @@ is_deeply $importer->first, [
 my $reader = XML::Struct::Reader->new( ns => 'strip', attributes => 0 );
 $options{parser} = sub {
     $reader->readDocument(
-        XML::LibXML::Reader->new( string => $_[0]->{recordData} )
-    ); 
+        XML::LibXML::Reader->new( string => $_[0]->{recordData}->toString )
+    );
 };
 $importer = Catmandu::Importer::SRU->new(%options);
 note explain $importer->first;

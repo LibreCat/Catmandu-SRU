@@ -34,7 +34,12 @@ use Moo;
 our $VERSION = '0.038';
 
 sub parse {
-	return $_[1];
+    my ($self,$record) = @_;
+
+    my $xml = $record->{recordData}->toString;
+    $record->{recordData} = $xml;
+
+	return $record;
 }
 
 1;
