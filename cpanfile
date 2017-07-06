@@ -9,6 +9,7 @@ on 'test', sub {
 };
 
 requires 'Catmandu', '0.9204';
+requires 'Cpanel::JSON::XS', '3.0213';    # implied by Catmandu
 requires 'YAML::XS', '0.34';    # implied by Catmandu
 requires 'Moo', '1.005000';     # implied by Catmandu
 

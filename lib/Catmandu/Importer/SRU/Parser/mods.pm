@@ -29,7 +29,6 @@ package Catmandu::Importer::SRU::Parser::mods;
 use Carp qw<carp>;
 use Catmandu::Importer::MODS;
 use Cpanel::JSON::XS;
-use XML::LibXML;
 
 use Moo;
 
@@ -43,11 +42,11 @@ sub parse {
     my $importer = Catmandu::Importer::MODS->new( file => \$record_data );
     my $mods = $importer->first;
 
-    if ( defined $mods) {
+    if ( defined $mods ) {
         my $id = $mods->get_identifier->{_body};
-        my $mods
+        my $mods_record
             = Cpanel::JSON::XS->new->binary->decode( $mods->as_json() );
-        return { _id => $id, record => $mods->{mods} };
+        return { _id => $id, record => $mods_record->{mods} };
     }
     return;
 }
