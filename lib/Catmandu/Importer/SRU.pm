@@ -117,10 +117,11 @@ sub _hashify {
         my $recordData     = $xc->find('./srw:recordData/*',$_)->pop();
         my $recordPosition = $xc->findvalue('./srw:recordPosition',$_);
 
-        # All the root level namespaces to the record Element.
+        # Copy all the root level namespaces to the record Element.
         for (@namespaces) {
             my $ns_prefix = $_->declaredPrefix;
             my $ns_uri    = $_->declaredURI;
+            # Skip the SRW namespaces
             unless ($ns_uri =~ m{http://www.loc.gov/zing/srw/}) {
                 $recordData->setNamespace($ns_uri,$ns_prefix,0);
             }
