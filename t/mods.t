@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use utf8;
 use Test::More;
 use Catmandu::Importer::SRU;
 use Catmandu::Importer::SRU::Parser::mods;
@@ -28,5 +29,11 @@ is_deeply $records->[0]->{record}->{identifier},
     }
     ],
     'mods has record key';
+is_deeply $records->[0]->{record}->{name}->[0]->{namePart},
+    [
+    {   _body => "Löwenstein, Hubertus zu (1906-1984)"
+    }
+    ],
+    'check encoding';
 
 done_testing;

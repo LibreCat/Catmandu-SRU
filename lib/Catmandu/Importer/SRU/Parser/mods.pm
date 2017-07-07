@@ -45,7 +45,7 @@ sub parse {
     if ( defined $mods ) {
         my $id = $mods->get_identifier->{_body};
         my $mods_record
-            = Cpanel::JSON::XS->new->binary->decode( $mods->as_json() );
+            = Cpanel::JSON::XS->new->utf8->decode( $mods->as_json() );
         return { _id => $id, record => $mods_record->{mods} };
     }
     return;
