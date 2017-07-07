@@ -34,6 +34,8 @@ has _currentRecordSet => (is => 'ro');
 has _n => (is => 'ro', default => sub { 0 });
 has _start => (is => 'ro', default => sub { 1 });
 has _max_results => (is => 'ro', default => sub { 10 });
+has _meta_get => (is => 'ro');
+has _meta_destr => (is => 'ro', default => sub { 1 });
 
 # Internal Methods. ------------------------------------------------------------
 
@@ -90,8 +92,10 @@ sub _hashify {
   my $xc     = XML::LibXML::XPathContext->new( $root );
   $xc->registerNs("srw","http://www.loc.gov/zing/srw/");
   $xc->registerNs("d","http://www.loc.gov/zing/srw/diagnostic/");
-
+  
   my $diagnostics = {};
+  my $meta;
+  my $records     = {};
 
   if ($xc->exists('/srw:searchRetrieveResponse/srw:diagnostics')) {
     $diagnostics->{diagnostic} = [];
@@ -104,10 +108,30 @@ sub _hashify {
        push @{$diagnostics->{diagnostic}} ,
                 { uri => $uri , message => $message , details => $details } ;
     }
+  } elsif ($self->_meta_get) {
+      for ($xc->findnodes('/srw:searchRetrieveResponse')) {
+        for ($xc->findnodes('./*', $_)) {
+          my $tagName = $_->tagName;
+          next if $tagName eq 'records';
+          if($tagName eq 'echoedSearchRetrieveRequest' or $tagName eq 'extraResponseData') {
+            my $key = $tagName;
+            $meta->{$key} = {};
+            for ($xc->findnodes("/srw:searchRetrieveResponse/srw:$key")) {
+              for ($xc->findnodes('./*', $_)) {
+                if(defined $_->prefix) {
+                    $xc->registerNs($_->prefix,$_->namespaceURI());
+                }
+                my $tagName = $_->tagName;
+                $meta->{$key}->{$tagName} = $xc->findvalue(".",$_);
+              }
+            }
+          } else {
+            $meta->{$tagName} = $xc->findvalue(".",$_);
+        }
+      }
+    }
   }
-
-  my $records = { };
-
+  
   if ($xc->exists('/srw:searchRetrieveResponse/srw:records')) {
       $records->{record} = [];
 
@@ -133,7 +157,7 @@ sub _hashify {
       }
   }
 
-  return { diagnostics => $diagnostics , records => $records };
+  return { diagnostics => $diagnostics , records => $records, meta => $meta };
 }
 
 sub url {
@@ -171,10 +195,11 @@ sub _nextRecordSet {
   }
 
   # get to the point.
+  my $meta = $hash->{'meta'};
   my $set = $hash->{'records'}->{'record'};
 
   # return a reference to a array.
-  return \@{$set};
+  return { record => \@{$set}, meta => $meta };
 }
 
 # Internal: gets the next record from our current resultset.
@@ -188,28 +213,52 @@ sub _nextRecord {
 
   # check for a exhaused recordset.
   if ($self->_n >= $self->_max_results) {
-	  $self->{_start} += $self->_max_results;
-	  $self->{_n} = 0;
+    $self->{_start} += $self->_max_results;
+    $self->{_n} = 0;
     $self->{_currentRecordSet} = $self->_nextRecordSet;
   }
 
-  # return the next record.
-  my $record = $self->_currentRecordSet->[$self->{_n}++];
+  # return the next record or metadata.
+  my $record = $self->{_currentRecordSet}->{record}->[$self->{_n}++];
 
   if (defined $record) {
-      if (is_code_ref($self->parser)) {
-          $record = $self->parser->($record);
-      } else {
-          $record = $self->parser->parse($record);
-      }
+    if (is_code_ref($self->parser)) {
+        $record = $self->parser->($record);
+    } else {
+        $record = $self->parser->parse($record);
+    }
   }
   return $record;
+}
+
+# Internal: gets searchRetrieveResponse metadata of the request
+#
+# Returns a hash representation of the metadata.
+sub _meta {
+  my ($self) = @_;
+
+  my $meta;
+  if($self->_meta_destr) {
+    $self->{_currentRecordSet} = $self->_nextRecordSet;
+    $meta = $self->{_currentRecordSet}->{meta};
+    $meta = $self->parser->parse($meta);
+    $self->{_meta_destr} = 0;
+  }
+
+  return $meta;
 }
 
 # Public Methods. --------------------------------------------------------------
 
 sub generator {
   my ($self) = @_;
+
+  if (ref $self->parser eq 'Catmandu::Importer::SRU::Parser::meta') {
+    $self->{_meta_get} = 1;
+    return sub {
+      $self->_meta;
+    };
+  }
 
   return sub {
     $self->_nextRecord;

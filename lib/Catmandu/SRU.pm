@@ -69,6 +69,8 @@ Catmandu::SRU - Catmandu module for working with SRU data
 
 =item L<Catmandu::Importer::SRU::Parser::marcxml>
 
+=item L<Catmandu::Importer::SRU::Parser::meta>
+
 =item L<Catmandu::Importer::SRU::Parser::mods>
 
 =back
