@@ -5,6 +5,9 @@ Revision history for Catmandu-SRU
   - Adding a `mods` parser
   - Adding a `meta` parser
 
+0.039  2016-11-07 13:41:07 CET
+  - documentation and tests
+
 0.038  2014-10-21 22:56:17 CEST
   - Added missing test requirement Test::Exception
 
