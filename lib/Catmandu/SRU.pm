@@ -8,16 +8,12 @@ Catmandu::SRU - Catmandu module for working with SRU data
 
 =begin markdown
 
-<<<<<<< HEAD
 # STATUS
 [![Build Status](https://travis-ci.org/LibreCat/Catmandu-SRU.svg?branch=master)](https://travis-ci.org/LibreCat/Catmandu-SRU)
 [![Coverage](https://coveralls.io/repos/LibreCat/Catmandu-SRU/badge.png?branch=master)](https://coveralls.io/r/LibreCat/Catmandu-SRU)
 [![CPANTS kwalitee](http://cpants.cpanauthors.org/dist/Catmandu-SRU.png)](http://cpants.cpanauthors.org/dist/Catmandu-SRU)
 
 =end markdown
-=======
-our $VERSION = '0.039';
->>>>>>> master
 
 =head1 SYNOPSIS
 
