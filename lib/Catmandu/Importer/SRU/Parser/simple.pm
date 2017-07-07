@@ -25,7 +25,7 @@ use strict;
 use XML::LibXML::Simple ();
 use Moo;
 
-our $VERSION = '0.038';
+our $VERSION = '0.040';
 
 has xmlsimple => ( is => 'ro', default => sub { XML::LibXML::Simple->new } );
 

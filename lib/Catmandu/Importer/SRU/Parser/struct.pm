@@ -43,7 +43,7 @@ use strict;
 use Moo;
 use XML::Struct ();
 
-our $VERSION = '0.038';
+our $VERSION = '0.040';
 
 has _reader => (is => 'ro', lazy => 1, builder => sub {
     XML::Struct::Reader->new();

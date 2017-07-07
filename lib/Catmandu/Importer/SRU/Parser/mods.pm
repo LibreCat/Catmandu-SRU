@@ -32,7 +32,7 @@ use Cpanel::JSON::XS;
 
 use Moo;
 
-our $VERSION = '0.038';
+our $VERSION = '0.040';
 
 sub parse {
     my ( $self, $record ) = @_;

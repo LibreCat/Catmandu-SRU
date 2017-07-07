@@ -3,7 +3,7 @@ package Catmandu::Importer::SRU::Parser;
 use Moo;
 use XML::LibXML::Simple qw(XMLin);
 
-our $VERSION = '0.038';
+our $VERSION = '0.040';
 
 sub parse {
 	my ($self,$record) = @_;
