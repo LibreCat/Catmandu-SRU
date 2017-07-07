@@ -16,7 +16,7 @@ our $VERSION = '0.038';
  $ catmandu convert SRU --base http://www.unicat.be/sru --query data  --recordSchema marcxml
 
  $ catmandu convert SRU --base http://www.unicat.be/sru --query data  --recordSchema marcxml --parser marcxml
- 
+
  # create a config file: catmandu.yml
  $ cat catmandu.yml
  ---
@@ -24,7 +24,7 @@ our $VERSION = '0.038';
    unicat:
      package: SRU
      options:
-     	base: http://www.unicat.be/sru 
+     	base: http://www.unicat.be/sru
      	recordSchema: marcxml
      	parser: marcxml
 
@@ -45,7 +45,7 @@ our $VERSION = '0.038';
   );
 
   $exporter->commit;
- 
+
 =head1 MODULES
 
 =over 2
@@ -61,6 +61,8 @@ our $VERSION = '0.038';
 =item L<Catmandu::Importer::SRU::Parser::struct>
 
 =item L<Catmandu::Importer::SRU::Parser::marcxml>
+
+=item L<Catmandu::Importer::SRU::Parser::mods>
 
 =back
 

@@ -37,9 +37,9 @@ our $VERSION = '0.038';
 sub parse {
     my ( $self, $record ) = @_;
 
-    my $record_data = $record->{recordData};
+    my $xml = $record->{recordData}->toString();
 
-    my $importer = Catmandu::Importer::MODS->new( file => \$record_data );
+    my $importer = Catmandu::Importer::MODS->new( file => \$xml );
     my $mods = $importer->first;
 
     if ( defined $mods ) {
