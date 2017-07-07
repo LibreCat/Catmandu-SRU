@@ -53,6 +53,7 @@ Catmandu::SRU - Catmandu module for working with SRU data
 - [Catmandu::Importer::SRU::Parser::simple](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::simple)
 - [Catmandu::Importer::SRU::Parser::struct](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::struct)
 - [Catmandu::Importer::SRU::Parser::marcxml](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::marcxml)
+- [Catmandu::Importer::SRU::Parser::meta](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::meta)
 - [Catmandu::Importer::SRU::Parser::mods](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::mods)
 
 # SEE ALSO
