@@ -1,6 +1,6 @@
 =head1 NAME
 
-  Catmandu::Importer::SRU::Parser::meta - Package transforms SRU responses metadta into a Perl hash
+  Catmandu::Importer::SRU::Parser::meta - Package transforms SRU responses metadata into a Perl hash
 
 =head1 SYNOPSIS
 
@@ -15,7 +15,7 @@ my $importer = Catmandu::Importer::SRU->new(%attrs);
 
 =head1 DESCRIPTION
 
-Transforms SRU set metadta into a Perl hash containing the fields described by 
+Transforms SRU set metadata into a Perl hash containing the fields described by 
 L<SRU SearchRetrieve Response Parameters|http://www.loc.gov/standards/sru/sru-1-1.html#responseparameters>
 like:
 
