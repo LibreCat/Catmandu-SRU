@@ -2,7 +2,7 @@ package Catmandu::Importer::SRU;
 
 use Catmandu::Sane;
 use Catmandu::Importer::SRU::Parser;
-use Catmandu::Util qw(:is);
+use Catmandu::Util qw(:is :check);
 use URI::Escape;
 use Moo;
 use Furl;
@@ -28,16 +28,25 @@ has furl => (is => 'ro', lazy => 1, builder => sub {
 # optional.
 has sortKeys => (is => 'ro');
 has parser => (is => 'rw', default => sub { 'simple' }, coerce => \&_coerce_parser );
+has limit => (
+    is => 'ro',
+    isa => sub { check_natural($_[0]); },
+    lazy => 1,
+    default => sub { 10 }
+);
+has total => ( is => 'ro' );
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
 has _n => (is => 'ro', default => sub { 0 });
 has _start => (is => 'ro', default => sub { 1 });
-has _max_results => (is => 'ro', default => sub { 10 });
 has _meta_get => (is => 'ro');
 has _meta_destr => (is => 'ro', default => sub { 1 });
 
 # Internal Methods. ------------------------------------------------------------
+my $NS_SRW = "http://www.loc.gov/zing/srw/";
+my $NS_SRW_DIAGNOSTIC = "http://www.loc.gov/zing/srw/diagnostic/";
+
 
 sub _coerce_parser {
   my ($parser) = @_;
@@ -90,9 +99,9 @@ sub _hashify {
   my @namespaces = $root->getNamespaces;
 
   my $xc     = XML::LibXML::XPathContext->new( $root );
-  $xc->registerNs("srw","http://www.loc.gov/zing/srw/");
-  $xc->registerNs("d","http://www.loc.gov/zing/srw/diagnostic/");
-  
+  $xc->registerNs("srw",$NS_SRW);
+  $xc->registerNs("d",$NS_SRW_DIAGNOSTIC);
+
   my $diagnostics = {};
   my $meta;
   my $records     = {};
@@ -111,7 +120,7 @@ sub _hashify {
   } elsif ($self->_meta_get) {
       for ($xc->findnodes('/srw:searchRetrieveResponse')) {
         for ($xc->findnodes('./*', $_)) {
-          my $tagName = $_->tagName;
+          my $tagName = $_->localname;
           next if $tagName eq 'records';
           if($tagName eq 'echoedSearchRetrieveRequest' or $tagName eq 'extraResponseData') {
             my $key = $tagName;
@@ -121,8 +130,10 @@ sub _hashify {
                 if(defined $_->prefix) {
                     $xc->registerNs($_->prefix,$_->namespaceURI());
                 }
-                my $tagName = $_->tagName;
-                $meta->{$key}->{$tagName} = $xc->findvalue(".",$_);
+                my $ns_uri = $_->namespaceURI;
+                my $subTagName = is_string( $ns_uri ) && $ns_uri eq $NS_SRW ?
+                    $_->localname : $_->tagName;
+                $meta->{$key}->{$subTagName} = $xc->findvalue(".",$_);
               }
             }
           } else {
@@ -131,7 +142,7 @@ sub _hashify {
       }
     }
   }
-  
+
   if ($xc->exists('/srw:searchRetrieveResponse/srw:records')) {
       $records->{record} = [];
 
@@ -146,7 +157,7 @@ sub _hashify {
             my $ns_prefix = $_->declaredPrefix;
             my $ns_uri    = $_->declaredURI;
             # Skip the SRW namespaces
-            unless ($ns_uri =~ m{http://www.loc.gov/zing/srw/}) {
+            unless ($ns_uri =~ m{$NS_SRW}) {
                 $recordData->setNamespace($ns_uri,$ns_prefix,0);
             }
         }
@@ -163,6 +174,15 @@ sub _hashify {
 sub url {
   my ($self) = @_;
 
+  my $limit = $self->limit;
+  my $start = $self->_start;
+  my $total = $self->total;
+  if ( is_natural( $total ) && ( $start - 1 + $limit ) > $total ) {
+
+    $limit = $total - ($start - 1);
+
+  }
+
   # construct the url
   my $url = $self->base;
   $url .= '?version=' . uri_escape($self->version);
@@ -170,8 +190,8 @@ sub url {
   $url .= '&query=' . uri_escape($self->query);
   $url .= '&recordSchema=' . uri_escape($self->recordSchema);
   $url .= '&sortKeys=' . uri_esacpe($self->sortKeys) if $self->sortKeys;
-  $url .= '&startRecord=' . uri_escape($self->_start);
-  $url .= '&maximumRecords=' . uri_escape($self->_max_results);
+  $url .= '&startRecord=' . uri_escape($start);
+  $url .= '&maximumRecords=' . uri_escape($limit);
 
   return $url;
 }
@@ -212,8 +232,8 @@ sub _nextRecord {
   $self->{_currentRecordSet} = $self->_nextRecordSet unless $self->_currentRecordSet;
 
   # check for a exhaused recordset.
-  if ($self->_n >= $self->_max_results) {
-    $self->{_start} += $self->_max_results;
+  if ($self->_n >= $self->limit) {
+    $self->{_start} += $self->limit;
     $self->{_n} = 0;
     $self->{_currentRecordSet} = $self->_nextRecordSet;
   }
@@ -263,6 +283,34 @@ sub generator {
   return sub {
     $self->_nextRecord;
   };
+}
+sub count {
+
+  my $self = $_[0];
+
+  my $url = $self->base
+    . '?version=' . uri_escape( $self->version )
+    . '&operation=' .uri_escape( $self->operation )
+    . '&query=' . uri_escape( $self->query )
+    . '&recordSchema=' . uri_escape( $self->recordSchema )
+    . '&maximumRecords=0';
+
+  # fetch the xml response and hashify it.
+  my $xml  = $self->_request( $url )->{content};
+  my $old_value = $self->{_meta_get};
+  $self->{_meta_get} = 1;
+  my $hash = $self->_hashify( $xml );
+  $self->{_meta_get} = $old_value;
+
+  # sru specific error checking.
+  if (exists $hash->{'diagnostics'}->{'diagnostic'}) {
+    for my $error (@{$hash->{'diagnostics'}->{'diagnostic'}}) {
+        warn 'SRU DIAGNOSTIC: ', $error->{'message'} , ' : ' , $error->{'details'};
+    }
+  }
+
+  int( $hash->{meta}->{numberOfRecords} );
+
 }
 
 =head1 NAME
@@ -319,6 +367,22 @@ base URL of the SRU server (required)
 =item query
 
 CQL query (required)
+
+=item limit
+
+Number of records to fetch in one batch.
+
+Remember that records are fetched in batches, and not in one request.
+
+Set to C<10> by default.
+
+This is translated to maximumRecords in the background.
+
+=item total
+
+Total number of records this importer may return.
+
+Not set by default.
 
 =item recordSchema
 
