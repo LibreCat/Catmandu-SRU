@@ -98,7 +98,7 @@ sub _hashify {
   my $xc     = XML::LibXML::XPathContext->new( $root );
   $xc->registerNs("srw","http://www.loc.gov/zing/srw/");
   $xc->registerNs("d","http://www.loc.gov/zing/srw/diagnostic/");
-  
+
   my $diagnostics = {};
   my $meta;
   my $records     = {};
@@ -117,7 +117,7 @@ sub _hashify {
   } elsif ($self->_meta_get) {
       for ($xc->findnodes('/srw:searchRetrieveResponse')) {
         for ($xc->findnodes('./*', $_)) {
-          my $tagName = $_->tagName;
+          my $tagName = $_->localname;
           next if $tagName eq 'records';
           if($tagName eq 'echoedSearchRetrieveRequest' or $tagName eq 'extraResponseData') {
             my $key = $tagName;
@@ -127,8 +127,8 @@ sub _hashify {
                 if(defined $_->prefix) {
                     $xc->registerNs($_->prefix,$_->namespaceURI());
                 }
-                my $tagName = $_->tagName;
-                $meta->{$key}->{$tagName} = $xc->findvalue(".",$_);
+                my $subTagName = $_->localname;
+                $meta->{$key}->{$subTagName} = $xc->findvalue(".",$_);
               }
             }
           } else {
@@ -137,7 +137,7 @@ sub _hashify {
       }
     }
   }
-  
+
   if ($xc->exists('/srw:searchRetrieveResponse/srw:records')) {
       $records->{record} = [];
 
