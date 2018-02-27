@@ -2,7 +2,7 @@ package Catmandu::Importer::SRU;
 
 use Catmandu::Sane;
 use Catmandu::Importer::SRU::Parser;
-use Catmandu::Util qw(:is);
+use Catmandu::Util qw(:is :check);
 use URI::Escape;
 use Moo;
 use Furl;
@@ -28,12 +28,17 @@ has furl => (is => 'ro', lazy => 1, builder => sub {
 # optional.
 has sortKeys => (is => 'ro');
 has parser => (is => 'rw', default => sub { 'simple' }, coerce => \&_coerce_parser );
+has limit => (
+    is => 'ro',
+    isa => sub { check_natural($_[0]); },
+    lazy => 1,
+    default => sub { 10 }
+);
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
 has _n => (is => 'ro', default => sub { 0 });
 has _start => (is => 'ro', default => sub { 1 });
-has _max_results => (is => 'ro', default => sub { 10 });
 has _meta_get => (is => 'ro');
 has _meta_destr => (is => 'ro', default => sub { 1 });
 
@@ -171,7 +176,7 @@ sub url {
   $url .= '&recordSchema=' . uri_escape($self->recordSchema);
   $url .= '&sortKeys=' . uri_esacpe($self->sortKeys) if $self->sortKeys;
   $url .= '&startRecord=' . uri_escape($self->_start);
-  $url .= '&maximumRecords=' . uri_escape($self->_max_results);
+  $url .= '&maximumRecords=' . uri_escape($self->limit);
 
   return $url;
 }
@@ -212,8 +217,8 @@ sub _nextRecord {
   $self->{_currentRecordSet} = $self->_nextRecordSet unless $self->_currentRecordSet;
 
   # check for a exhaused recordset.
-  if ($self->_n >= $self->_max_results) {
-    $self->{_start} += $self->_max_results;
+  if ($self->_n >= $self->limit) {
+    $self->{_start} += $self->limit;
     $self->{_n} = 0;
     $self->{_currentRecordSet} = $self->_nextRecordSet;
   }
