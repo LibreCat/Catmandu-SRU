@@ -279,6 +279,34 @@ sub generator {
     $self->_nextRecord;
   };
 }
+sub count {
+
+  my $self = $_[0];
+
+  my $url = $self->base
+    . '?version=' . uri_escape( $self->version )
+    . '&operation=' .uri_escape( $self->operation )
+    . '&query=' . uri_escape( $self->query )
+    . '&recordSchema=' . uri_escape( $self->recordSchema )
+    . '&maximumRecords=0';
+
+  # fetch the xml response and hashify it.
+  my $xml  = $self->_request( $url )->{content};
+  my $old_value = $self->{_meta_get};
+  $self->{_meta_get} = 1;
+  my $hash = $self->_hashify( $xml );
+  $self->{_meta_get} = $old_value;
+
+  # sru specific error checking.
+  if (exists $hash->{'diagnostics'}->{'diagnostic'}) {
+    for my $error (@{$hash->{'diagnostics'}->{'diagnostic'}}) {
+        warn 'SRU DIAGNOSTIC: ', $error->{'message'} , ' : ' , $error->{'details'};
+    }
+  }
+
+  int( $hash->{meta}->{numberOfRecords} );
+
+}
 
 =head1 NAME
 
