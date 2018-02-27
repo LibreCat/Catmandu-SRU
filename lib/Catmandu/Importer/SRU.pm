@@ -44,6 +44,9 @@ has _meta_get => (is => 'ro');
 has _meta_destr => (is => 'ro', default => sub { 1 });
 
 # Internal Methods. ------------------------------------------------------------
+my $NS_SRW = "http://www.loc.gov/zing/srw/";
+my $NS_SRW_DIAGNOSTIC = "http://www.loc.gov/zing/srw/diagnostic/";
+
 
 sub _coerce_parser {
   my ($parser) = @_;
@@ -96,8 +99,8 @@ sub _hashify {
   my @namespaces = $root->getNamespaces;
 
   my $xc     = XML::LibXML::XPathContext->new( $root );
-  $xc->registerNs("srw","http://www.loc.gov/zing/srw/");
-  $xc->registerNs("d","http://www.loc.gov/zing/srw/diagnostic/");
+  $xc->registerNs("srw",$NS_SRW);
+  $xc->registerNs("d",$NS_SRW_DIAGNOSTIC);
 
   my $diagnostics = {};
   my $meta;
@@ -127,7 +130,9 @@ sub _hashify {
                 if(defined $_->prefix) {
                     $xc->registerNs($_->prefix,$_->namespaceURI());
                 }
-                my $subTagName = $_->localname;
+                my $ns_uri = $_->namespaceURI;
+                my $subTagName = is_string( $ns_uri ) && $ns_uri eq $NS_SRW ?
+                    $_->localname : $_->tagName;
                 $meta->{$key}->{$subTagName} = $xc->findvalue(".",$_);
               }
             }
@@ -152,7 +157,7 @@ sub _hashify {
             my $ns_prefix = $_->declaredPrefix;
             my $ns_uri    = $_->declaredURI;
             # Skip the SRW namespaces
-            unless ($ns_uri =~ m{http://www.loc.gov/zing/srw/}) {
+            unless ($ns_uri =~ m{$NS_SRW}) {
                 $recordData->setNamespace($ns_uri,$ns_prefix,0);
             }
         }
