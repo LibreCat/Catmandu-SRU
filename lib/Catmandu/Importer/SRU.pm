@@ -335,6 +335,22 @@ base URL of the SRU server (required)
 
 CQL query (required)
 
+=item limit
+
+Number of records to fetch in one batch.
+
+Remember that records are fetched in batches, and not in one request.
+
+Set to C<10> by default.
+
+This is translated to maximumRecords in the background.
+
+=item total
+
+Total number of records this importer may return.
+
+Not set by default.
+
 =item recordSchema
 
 set to C<dc> by default
