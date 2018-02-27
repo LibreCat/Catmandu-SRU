@@ -34,6 +34,7 @@ has limit => (
     lazy => 1,
     default => sub { 10 }
 );
+has total => ( is => 'ro' );
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
@@ -168,6 +169,15 @@ sub _hashify {
 sub url {
   my ($self) = @_;
 
+  my $limit = $self->limit;
+  my $start = $self->_start;
+  my $total = $self->total;
+  if ( is_natural( $total ) && ( $start - 1 + $limit ) > $total ) {
+
+    $limit = $total - ($start - 1);
+
+  }
+
   # construct the url
   my $url = $self->base;
   $url .= '?version=' . uri_escape($self->version);
@@ -175,8 +185,8 @@ sub url {
   $url .= '&query=' . uri_escape($self->query);
   $url .= '&recordSchema=' . uri_escape($self->recordSchema);
   $url .= '&sortKeys=' . uri_esacpe($self->sortKeys) if $self->sortKeys;
-  $url .= '&startRecord=' . uri_escape($self->_start);
-  $url .= '&maximumRecords=' . uri_escape($self->limit);
+  $url .= '&startRecord=' . uri_escape($start);
+  $url .= '&maximumRecords=' . uri_escape($limit);
 
   return $url;
 }
