@@ -69,7 +69,6 @@ sub _coerce_parser {
 # Returns the raw response object.
 sub _request {
   my ($self, $url) = @_;
-
   my $res = $self->furl->get($url);
   die $res->status_line unless $res->is_success;
 
@@ -128,6 +127,8 @@ sub _hashify {
         }
       }
     }
+  } else {
+    $meta->{numberOfRecords} = $xc->findvalue('/srw:searchRetrieveResponse/srw:numberOfRecords');
   }
   
   if ($xc->exists('/srw:searchRetrieveResponse/srw:records')) {
@@ -200,7 +201,7 @@ sub _nextRecord {
   $self->{_currentRecordSet} = $self->_nextRecordSet unless $self->_currentRecordSet;
 
   # check for a exhaused recordset.
-  if ($self->_n >= $self->_max_results) {
+  if ($self->_n >= $self->_max_results && $self->{_start} <= $self->{_currentRecordSet}->{meta}->{numberOfRecords}) {
     $self->{_start} += $self->_max_results;
     $self->{_n} = 0;
     $self->{_currentRecordSet} = $self->_nextRecordSet;
@@ -216,6 +217,7 @@ sub _nextRecord {
         $record = $self->parser->parse($record);
     }
   }
+
   return $record;
 }
 
