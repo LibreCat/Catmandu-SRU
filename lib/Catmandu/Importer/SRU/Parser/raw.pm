@@ -1,3 +1,4 @@
+
 =head1 NAME
 
   Catmandu::Importer::SRU::Parser::raw - Package transforms SRU responses into a Perl hash
@@ -27,14 +28,20 @@ Transforms each SRU record into a Perl hash containing the following fields:
 Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
 
 =cut
+
 package Catmandu::Importer::SRU::Parser::raw;
 
 use Moo;
 
-our $VERSION = '0.038';
+our $VERSION = '0.41';
 
 sub parse {
-	return $_[1];
+    my ($self, $record) = @_;
+
+    my $xml = $record->{recordData}->toString;
+    $record->{recordData} = $xml;
+
+    return $record;
 }
 
 1;

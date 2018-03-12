@@ -14,7 +14,7 @@ my %options = (
 ok my $importer = Catmandu::Importer::SRU->new(%options);
 
 ok my $record = $importer->first;
-is_deeply $record->{recordData}->{dc}->{contributor}, ['Alice','Bob'];
+is_deeply $record->{recordData}->{dc}->{contributor}, ['Alice', 'Bob'];
 
 # simple as default option
 delete $options{parser};

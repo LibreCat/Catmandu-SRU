@@ -2,6 +2,11 @@
 
 Catmandu::SRU - Catmandu module for working with SRU data
 
+# STATUS
+[![Build Status](https://travis-ci.org/LibreCat/Catmandu-SRU.svg?branch=master)](https://travis-ci.org/LibreCat/Catmandu-SRU)
+[![Coverage](https://coveralls.io/repos/LibreCat/Catmandu-SRU/badge.png?branch=master)](https://coveralls.io/r/LibreCat/Catmandu-SRU)
+[![CPANTS kwalitee](http://cpants.cpanauthors.org/dist/Catmandu-SRU.png)](http://cpants.cpanauthors.org/dist/Catmandu-SRU)
+
 # SYNOPSIS
 
     # On the command line
@@ -10,7 +15,7 @@ Catmandu::SRU - Catmandu module for working with SRU data
     $ catmandu convert SRU --base http://www.unicat.be/sru --query data  --recordSchema marcxml
 
     $ catmandu convert SRU --base http://www.unicat.be/sru --query data  --recordSchema marcxml --parser marcxml
-    
+
     # create a config file: catmandu.yml
     $ cat catmandu.yml
     ---
@@ -18,7 +23,7 @@ Catmandu::SRU - Catmandu module for working with SRU data
       unicat:
         package: SRU
         options:
-           base: http://www.unicat.be/sru 
+           base: http://www.unicat.be/sru
            recordSchema: marcxml
            parser: marcxml
 
@@ -39,7 +44,6 @@ Catmandu::SRU - Catmandu module for working with SRU data
      );
 
      $exporter->commit;
-    
 
 # MODULES
 
@@ -49,6 +53,8 @@ Catmandu::SRU - Catmandu module for working with SRU data
 - [Catmandu::Importer::SRU::Parser::simple](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::simple)
 - [Catmandu::Importer::SRU::Parser::struct](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::struct)
 - [Catmandu::Importer::SRU::Parser::marcxml](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::marcxml)
+- [Catmandu::Importer::SRU::Parser::meta](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::meta)
+- [Catmandu::Importer::SRU::Parser::mods](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::mods)
 
 # SEE ALSO
 

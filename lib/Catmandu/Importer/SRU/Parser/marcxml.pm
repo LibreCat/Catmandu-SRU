@@ -1,3 +1,4 @@
+
 =head1 NAME
 
   Catmandu::Importer::SRU::Parser::marcxml - Package transforms SRU responses into Catmandu MARC
@@ -22,51 +23,48 @@ Each MARCXML response will be transformed into an format as defined by L<Catmand
 Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
 
 =cut
+
 package Catmandu::Importer::SRU::Parser::marcxml;
 
 use Moo;
 use XML::LibXML;
 
-our $VERSION = '0.038';
+our $VERSION = '0.41';
 
 sub parse {
-	my ($self,$record) = @_;
+    my ($self, $record) = @_;
 
-  my $xml = $record->{recordData};
+    my $marc = $record->{recordData};
 
-	my $parser = XML::LibXML->new();
-  my $doc    = $parser->parse_string($xml);
-  my $root   = $doc->documentElement;
+    my @out;
+    my $id = undef;
 
-  my @out;
-  my $id = undef;
+    for my $field ($marc->getChildrenByLocalName('*')) {
+        my $name = $field->localname;
+        my $value = $field->textContent // '';
+        if ($name eq 'leader') {
+            push @out, ['LDR', ' ', ' ', '_', $value];
+        }
+        elsif ($name eq 'controlfield') {
+            my $tag = $field->getAttribute('tag');
+            push @out, [$tag, ' ', ' ', '_', $value];
+            $id = $value if $tag eq '001';
+        }
+        elsif ($name eq 'datafield') {
+            my $tag      = $field->getAttribute('tag');
+            my $ind1     = $field->getAttribute('ind1') // ' ';
+            my $ind2     = $field->getAttribute('ind2') // ' ';
+            my @subfield = ();
+            for my $subfield ($field->getChildrenByLocalName('subfield')) {
+                my $code  = $subfield->getAttribute('code');
+                my $value = $subfield->textContent;
+                push @subfield, $code, $value;
+            }
+            push @out, [$tag, $ind1, $ind2, @subfield];
+        }
+    }
 
-  for my $field ($root->getChildrenByLocalName('*')) {
-      my $name = $field->localname;
-      my $value = $field->textContent // '';
-      if ($name eq 'leader') {
-           push @out, [ 'LDR', ' ', ' ', '_', $value ];
-      }
-      elsif ($name eq 'controlfield') {
-          my $tag = $field->getAttribute( 'tag' );
-          push @out, [ $tag, ' ', ' ', '_', $value ];
-          $id = $value if $tag eq '001';
-      }
-      elsif ( $name eq 'datafield' ) {
-          my $tag  = $field->getAttribute( 'tag' );
-          my $ind1 = $field->getAttribute( 'ind1' ) // ' ';
-          my $ind2 = $field->getAttribute( 'ind2' ) // ' ';
-          my @subfield = ();
-          for my $subfield ( $field->getChildrenByLocalName('subfield') ) {
-              my $code = $subfield->getAttribute( 'code' );
-              my $value = $subfield->textContent;
-              push @subfield, $code, $value;
-          }
-          push @out, [ $tag, $ind1, $ind2, @subfield ];
-      }
-  }
-
-  return { _id => $id , record => \@out };
+    return {_id => $id, record => \@out};
 }
 
 1;

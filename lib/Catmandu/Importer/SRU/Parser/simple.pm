@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 Catmandu::Importer::SRU::Parser::simple - parse SRU records as simple XML
@@ -20,20 +21,23 @@ Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
 Jakob Voss C<< voss@gbv.de >>
 
 =cut
+
 package Catmandu::Importer::SRU::Parser::simple;
 use strict;
 use XML::LibXML::Simple ();
 use Moo;
 
-our $VERSION = '0.038';
+our $VERSION = '0.41';
 
-has xmlsimple => ( is => 'ro', default => sub { XML::LibXML::Simple->new } );
+has xmlsimple => (is => 'ro', default => sub {XML::LibXML::Simple->new});
 
 sub parse {
-	my ($self, $record) = @_;
+    my ($self, $record) = @_;
 
     $record->{recordData} = $self->xmlsimple->XMLin(
-        $record->{recordData} , KeepRoot => 1, NsStrip => 1
+        $record->{recordData}->toString,
+        KeepRoot => 1,
+        NsStrip  => 1
     );
 
     $record;

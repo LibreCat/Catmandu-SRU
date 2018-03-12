@@ -3,16 +3,17 @@ package Catmandu::Importer::SRU::Parser;
 use Moo;
 use XML::LibXML::Simple qw(XMLin);
 
-our $VERSION = '0.038';
+our $VERSION = '0.41';
 
 sub parse {
-	my ($self,$record) = @_;
+    my ($self, $record) = @_;
 
-	return unless defined $record;
+    return unless defined $record;
 
-	# By default we use XML::LibXML::Simple to keep backwards compatible...
+    # By default we use XML::LibXML::Simple to keep backwards compatible...
     my $xs = XML::LibXML::Simple->new();
-    $record->{recordData} = $xs->XMLin($record->{recordData} , KeepRoot => 1, NsStrip => 1);
+    $record->{recordData}
+        = $xs->XMLin($record->{recordData}, KeepRoot => 1, NsStrip => 1);
 
     $record;
 }
