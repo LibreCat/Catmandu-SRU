@@ -1,6 +1,7 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+  - Add picaxml parser
 
 0.040  2017-07-07 08:35:12 CEST
   - Adding support for namespace prefixes declared in the SRU response header
