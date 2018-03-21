@@ -62,4 +62,6 @@ The request parameters as hash of key-value pairs.
 
 =back
 
+In addition field C<requestUrl> contains the full request URL.
+
 =cut

@@ -35,7 +35,8 @@ is_deeply {
         recordSchema => 'MARC21-xml',
         version      => '1.1',
         xQuery       => ''
-   }
+   },
+   requestUrl => 'http://example.org/?version=1.1&operation=searchRetrieve&query=meta.xml&recordSchema=dc&startRecord=1&maximumRecords=10',
 }, $importer->next, 'SRU SearchRetrieve Response Parameters';
 ok !$importer->next, 'it\'s only one record';
 

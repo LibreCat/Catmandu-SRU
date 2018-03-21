@@ -105,7 +105,7 @@ sub _hashify {
     $xc->registerNs("srw", $NS_SRW);
     $xc->registerNs("d",   $NS_SRW_DIAGNOSTIC);
 
-    my $meta = { };
+    my $meta = { requestUrl => $self->url };
     my $records = {};
 
     for ($xc->findnodes('/srw:searchRetrieveResponse')) {
@@ -187,9 +187,7 @@ sub url {
     my $start = $self->_start;
     my $total = $self->total;
     if (is_natural($total) && ($start - 1 + $limit) > $total) {
-
         $limit = $total - ($start - 1);
-
     }
 
     # construct the url
