@@ -4,7 +4,7 @@ use utf8;
 use Test::More;
 use Catmandu::Importer::SRU;
 use Catmandu::Importer::SRU::Parser::mods;
-use lib ".";
+
 require 't/lib/MockFurl.pm';
 
 my %attrs = (

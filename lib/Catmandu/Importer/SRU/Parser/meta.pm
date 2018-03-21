@@ -2,9 +2,7 @@ package Catmandu::Importer::SRU::Parser::meta;
 
 use Moo;
 
-sub parse {
-    return $_[1];
-}
+sub parse { }
 
 1;
 __END__
@@ -50,6 +48,10 @@ Number of seconds after which the created result set will be deleted.
 Next position within the result set following the final returned record (unless
 this is the last part of the result set).
 
+=item diagnostics
+
+An array of diagnostics, each with C<uri>, C<details> (optional), and C<message> (optional).
+
 =item extraResponseData
 
 Additional, profile specific information.
@@ -59,9 +61,5 @@ Additional, profile specific information.
 The request parameters as hash of key-value pairs.
 
 =back
-
-=head1 AUTHOR
-
-Carsten Klee C<< <klee at cpan.org> >>
 
 =cut

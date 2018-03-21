@@ -45,8 +45,6 @@ has total => (is => 'ro');
 has _currentRecordSet => (is => 'ro');
 has _n                => (is => 'ro', default => sub {0});
 has _start            => (is => 'ro', default => sub {1});
-has _meta_get         => (is => 'ro');
-has _meta_destr       => (is => 'ro', default => sub {1});
 
 # Internal Methods. ------------------------------------------------------------
 my $NS_SRW            = "http://www.loc.gov/zing/srw/";
@@ -107,56 +105,40 @@ sub _hashify {
     $xc->registerNs("srw", $NS_SRW);
     $xc->registerNs("d",   $NS_SRW_DIAGNOSTIC);
 
-    my $diagnostics = {};
-    my $meta;
+    my $meta = { };
     my $records = {};
 
-    if ($xc->exists('/srw:searchRetrieveResponse/srw:diagnostics')) {
-        $diagnostics->{diagnostic} = [];
+    for ($xc->findnodes('/srw:searchRetrieveResponse')) {
 
-        for ($xc->findnodes('/srw:searchRetrieveResponse/srw:diagnostics/*'))
-        {
-            my $uri     = $xc->findvalue('./d:uri',     $_);
-            my $message = $xc->findvalue('./d:message', $_);
-            my $details = $xc->findvalue('./d:details', $_);
-
-            push @{$diagnostics->{diagnostic}},
-                {uri => $uri, message => $message, details => $details};
+        for ($xc->findnodes('./srw:diagnostics/d:diagnostic', $_)) {
+            my %diag = ( uri => $xc->findvalue('./d:uri', $_) );
+            $diag{message} = $_ for grep { $_ ne '' } ($xc->findvalue('./d:message', $_));
+            $diag{details} = $_ for grep { $_ ne '' } ($xc->findvalue('./d:details', $_));
+            push @{$meta->{diagnostics}}, \%diag;
         }
-    }
-    elsif ($self->_meta_get) {
-        for ($xc->findnodes('/srw:searchRetrieveResponse')) {
-            for ($xc->findnodes('./*', $_)) {
-                my $tagName = $_->localname;
-                next if $tagName eq 'records';
-                if (   $tagName eq 'echoedSearchRetrieveRequest'
-                    or $tagName eq 'extraResponseData')
-                {
-                    my $key = $tagName;
-                    $meta->{$key} = {};
-                    for (
-                        $xc->findnodes(
-                            "/srw:searchRetrieveResponse/srw:$key")
-                        )
-                    {
-                        for ($xc->findnodes('./*', $_)) {
-                            if (defined $_->prefix) {
-                                $xc->registerNs($_->prefix,
-                                    $_->namespaceURI());
-                            }
-                            my $ns_uri = $_->namespaceURI;
-                            my $subTagName
-                                = is_string($ns_uri)
-                                && $ns_uri eq $NS_SRW
-                                ? $_->localname
-                                : $_->tagName;
-                            $meta->{$key}->{$subTagName}
-                                = $xc->findvalue(".", $_);
-                        }
+
+        for my $tag (qw(version numberOfRecords resultSetId resultSetIdleTime nextRecordPosition)) {
+            for ($xc->findnodes("./srw:$tag", $_)) {
+                $meta->{$tag} = $xc->findvalue(".", $_);
+            }
+        }
+
+        for my $tag (qw(echoedSearchRetrieveRequest extraResponseData)) {
+            for ($xc->findnodes("./srw:$tag", $_)) {
+                $meta->{$tag} = {};
+                for ($xc->findnodes('./*', $_)) {
+                    if (defined $_->prefix) {
+                        $xc->registerNs($_->prefix,
+                            $_->namespaceURI());
                     }
-                }
-                else {
-                    $meta->{$tagName} = $xc->findvalue(".", $_);
+                    my $ns_uri = $_->namespaceURI;
+                    my $subTagName
+                        = is_string($ns_uri)
+                        && $ns_uri eq $NS_SRW
+                        ? $_->localname
+                        : $_->tagName;
+                    $meta->{$tag}->{$subTagName}
+                        = $xc->findvalue(".", $_);
                 }
             }
         }
@@ -186,17 +168,16 @@ sub _hashify {
                 }
             }
 
-            push @{$records->{record}},
-                {
+            push @{$records->{record}}, {
                 recordSchema   => $recordSchema,
                 recordPacking  => $recordPacking,
                 recordData     => $recordData,
                 recordPosition => $recordPosition
-                };
+            };
         }
     }
 
-    return {diagnostics => $diagnostics, records => $records, meta => $meta};
+    return { records => $records, meta => $meta };
 }
 
 sub url {
@@ -228,27 +209,21 @@ sub url {
 #
 # Returns a array representation of the resultset.
 sub _nextRecordSet {
-    my ($self) = @_;
+    my ($self, $quiet) = @_;
 
     # fetch the xml response and hashify it.
     my $res  = $self->_request($self->url);
     my $xml  = $res->{content};
     my $hash = $self->_hashify($xml);
 
-    # sru specific error checking.
-    if (exists $hash->{'diagnostics'}->{'diagnostic'}) {
-        for my $error (@{$hash->{'diagnostics'}->{'diagnostic'}}) {
-            warn 'SRU DIAGNOSTIC: ', $error->{'message'}, ' : ',
-                $error->{'details'};
-        }
-    }
+    $self->_emit_diagnostics($hash) unless $quiet;
 
     # get to the point.
     my $meta = $hash->{'meta'};
     my $set  = $hash->{'records'}->{'record'};
 
-    # return a reference to a array.
-    return {record => \@{$set}, meta => $meta};
+    # return records and metareference to a array.
+    { record => \@{$set}, meta => $meta };
 }
 
 # Internal: gets the next record from our current resultset.
@@ -279,24 +254,17 @@ sub _nextRecord {
             $record = $self->parser->parse($record);
         }
     }
-    return $record;
+
+    $record;
 }
 
-# Internal: gets searchRetrieveResponse metadata of the request
-#
-# Returns a hash representation of the metadata.
-sub _meta {
-    my ($self) = @_;
+# Internal: emit warnings for diagnostics
+sub _emit_diagnostics {
+    my ($self, $hash) = @_;
 
-    my $meta;
-    if ($self->_meta_destr) {
-        $self->{_currentRecordSet} = $self->_nextRecordSet;
-        $meta                      = $self->{_currentRecordSet}->{meta};
-        $meta                      = $self->parser->parse($meta);
-        $self->{_meta_destr}       = 0;
+    for my $diag (@{$hash->{meta}{diagnostics} // []}) {
+        warn join ' : ', grep { defined } map { $diag->{$_} } qw(uri message details);
     }
-
-    return $meta;
 }
 
 # Public Methods. --------------------------------------------------------------
@@ -305,9 +273,12 @@ sub generator {
     my ($self) = @_;
 
     if (ref $self->parser eq 'Catmandu::Importer::SRU::Parser::meta') {
-        $self->{_meta_get} = 1;
+        my $done;
         return sub {
-            $self->_meta;
+            return if $done;
+            $done = 1;
+            $self->{_currentRecordSet} = $self->_nextRecordSet(1);
+            $self->{_currentRecordSet}->{meta};
         };
     }
 
@@ -317,8 +288,7 @@ sub generator {
 }
 
 sub count {
-
-    my $self = $_[0];
+    my ($self) = @_;
 
     my $url
         = $self->base
@@ -333,22 +303,12 @@ sub count {
         . '&maximumRecords=0';
 
     # fetch the xml response and hashify it.
-    my $xml       = $self->_request($url)->{content};
-    my $old_value = $self->{_meta_get};
-    $self->{_meta_get} = 1;
+    my $xml = $self->_request($url)->{content};
     my $hash = $self->_hashify($xml);
-    $self->{_meta_get} = $old_value;
 
-    # sru specific error checking.
-    if (exists $hash->{'diagnostics'}->{'diagnostic'}) {
-        for my $error (@{$hash->{'diagnostics'}->{'diagnostic'}}) {
-            warn 'SRU DIAGNOSTIC: ', $error->{'message'}, ' : ',
-                $error->{'details'};
-        }
-    }
+    $self->_emit_diagnostics($hash);
 
     int($hash->{meta}->{numberOfRecords});
-
 }
 
 1;
@@ -396,6 +356,12 @@ Catmandu::Importer::SRU - Package that imports SRU data
     recordSchema => 'marcxml' ,
     parser => MyParser->new , # or parser => '+MyParser'
   );
+
+=head1 DESCRIPTION
+
+This L<Catmandu::Importer> imports records via SRU.
+
+SRU diagnostics are emitted as warnings except for parser set to C<meta>.
 
 =head1 CONFIGURATION
 
@@ -467,8 +433,6 @@ instance C<marcxml> will create a C<Catmandu::Importer::SRU::Parser::marcxml>.
 =item
 
 Function reference that gets passed the unparsed record.
-
-=back
 
 =back
 

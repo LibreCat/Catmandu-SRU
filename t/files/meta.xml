@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<searchRetrieveResponse xmlns="http://www.loc.gov/zing/srw/">
+<searchRetrieveResponse xmlns="http://www.loc.gov/zing/srw/"
+                        xmlns:diag="http://www.loc.gov/zing/srw/diagnostic/">
     <version>1.1</version>
     <numberOfRecords>23</numberOfRecords>
     <resultSetId>1</resultSetId>
@@ -958,12 +959,22 @@
         </record>
     </records>
     <nextRecordPosition>11</nextRecordPosition>
+    <diagnostics>
+      <diag:diagnostic>
+        <diag:uri>info:srw/diagnostic/1/38</diag:uri>
+        <diag:details>10</diag:details>
+        <diag:message>Whatever</diag:message>
+      </diag:diagnostic>
+      <diag:diagnostic>
+        <diag:uri>foo:bar</diag:uri>
+      </diag:diagnostic>
+    </diagnostics>
     <echoedSearchRetrieveRequest>
         <version>1.1</version>
         <query>tit=soil and biology</query>
         <xQuery xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
         <recordSchema>MARC21-xml</recordSchema>
-    </echoedSearchRetrieveRequest>
+    </echoedSearchRetrieveRequest>    
     <extraResponseData>
         <accountOf xmlns="">Zeitschriftendatenbank (ZDB)</accountOf>
         <test:test xmlns:test="http://test.info/">test</test:test>
