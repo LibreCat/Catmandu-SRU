@@ -1,6 +1,6 @@
 package Catmandu::SRU;
 
-our $VERSION = '0.040';
+our $VERSION = '0.41';
 
 =head1 NAME
 
@@ -20,9 +20,9 @@ Catmandu::SRU - Catmandu module for working with SRU data
  # On the command line
  $ catmandu convert SRU --base http://www.unicat.be/sru --query data
 
- $ catmandu convert SRU --base http://www.unicat.be/sru --query data  --recordSchema marcxml
+ $ catmandu convert SRU --base http://www.unicat.be/sru --query data --recordSchema marcxml
 
- $ catmandu convert SRU --base http://www.unicat.be/sru --query data  --recordSchema marcxml --parser marcxml
+ $ catmandu convert SRU --base http://www.unicat.be/sru --query data --recordSchema marcxml --parser marcxml
 
  # create a config file: catmandu.yml
  $ cat catmandu.yml
@@ -47,9 +47,7 @@ Catmandu::SRU - Catmandu module for working with SRU data
   my $fixer    = Catmandu->fixer(['marc_map("245a","title")','retain_field("title")']);
   my $export   = Catmandu->exporter('CSV');
 
-  $exporter->add_many(
-  	$fixer->fix($importer);
-  );
+  $exporter->add_many($fixer->fix($importer));
 
   $exporter->commit;
 
@@ -103,7 +101,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
 by the Free Software Foundation; or the Artistic License.
 
-See http://dev.perl.org/licenses/ for more information.
+See L<http://dev.perl.org/licenses/> for more information.
 
 =cut
 

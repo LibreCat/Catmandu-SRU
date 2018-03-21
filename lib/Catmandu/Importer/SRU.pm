@@ -2,7 +2,7 @@ package Catmandu::Importer::SRU;
 
 use Catmandu::Sane;
 use Catmandu::Importer::SRU::Parser;
-use Catmandu::Util qw(:is);
+use Catmandu::Util qw(:is :check);
 use URI::Escape;
 use Moo;
 use Furl;
@@ -10,56 +10,68 @@ use Carp;
 use XML::LibXML;
 use XML::LibXML::XPathContext;
 
-our $VERSION = '0.040';
+our $VERSION = '0.41';
 
 with 'Catmandu::Importer';
 
 # required.
-has base => (is => 'ro', required => 1);
-has query => (is => 'ro', required => 1);
-has version => (is => 'ro', default => sub { '1.1' });
-has operation => (is => 'ro', default => sub { 'searchRetrieve' });
-has recordSchema => (is => 'ro', default => sub { 'dc' });
-has userAgent => (is => 'ro', default => sub { 'Mozilla/5.0' });
-has furl => (is => 'ro', lazy => 1, builder => sub {
-    Furl->new( agent => $_[0]->userAgent );
-});
+has base         => (is => 'ro', required => 1);
+has query        => (is => 'ro', required => 1);
+has version      => (is => 'ro', default  => sub {'1.1'});
+has operation    => (is => 'ro', default  => sub {'searchRetrieve'});
+has recordSchema => (is => 'ro', default  => sub {'dc'});
+has userAgent    => (is => 'ro', default  => sub {'Mozilla/5.0'});
+has furl => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => sub {
+        Furl->new(agent => $_[0]->userAgent);
+    }
+);
 
 # optional.
 has sortKeys => (is => 'ro');
-has parser => (is => 'rw', default => sub { 'simple' }, coerce => \&_coerce_parser );
+has parser =>
+    (is => 'rw', default => sub {'simple'}, coerce => \&_coerce_parser);
+has limit => (
+    is      => 'ro',
+    isa     => sub {check_natural($_[0]);},
+    lazy    => 1,
+    default => sub {10}
+);
+has total => (is => 'ro');
 
 # internal stuff.
 has _currentRecordSet => (is => 'ro');
-has _n => (is => 'ro', default => sub { 0 });
-has _start => (is => 'ro', default => sub { 1 });
-has _max_results => (is => 'ro', default => sub { 10 });
-has _meta_get => (is => 'ro');
-has _meta_destr => (is => 'ro', default => sub { 1 });
+has _n                => (is => 'ro', default => sub {0});
+has _start            => (is => 'ro', default => sub {1});
 
 # Internal Methods. ------------------------------------------------------------
+my $NS_SRW            = "http://www.loc.gov/zing/srw/";
+my $NS_SRW_DIAGNOSTIC = "http://www.loc.gov/zing/srw/diagnostic/";
 
 sub _coerce_parser {
-  my ($parser) = @_;
+    my ($parser) = @_;
 
-  return $parser if is_invocant($parser) or is_code_ref($parser);
+    return $parser if is_invocant($parser) or is_code_ref($parser);
 
-  if (is_string($parser) && !is_number($parser)) {
-      my $class = $parser =~ /^\+(.+)/ ? $1
-        : "Catmandu::Importer::SRU::Parser::$parser";
+    if (is_string($parser) && !is_number($parser)) {
+        my $class
+            = $parser =~ /^\+(.+)/
+            ? $1
+            : "Catmandu::Importer::SRU::Parser::$parser";
 
-      my $parser;
-      eval {
-          $parser = Catmandu::Util::require_package($class)->new;
-      };
-      if ($@) {
-        croak $@;
-      } else {
-        return $parser;
-      }
-  }
+        my $parser;
+        eval {$parser = Catmandu::Util::require_package($class)->new;};
+        if ($@) {
+            croak $@;
+        }
+        else {
+            return $parser;
+        }
+    }
 
-  return Catmandu::Importer::SRU::Parser->new;
+    return Catmandu::Importer::SRU::Parser->new;
 }
 
 # Internal: HTTP GET something.
@@ -68,12 +80,12 @@ sub _coerce_parser {
 #
 # Returns the raw response object.
 sub _request {
-  my ($self, $url) = @_;
+    my ($self, $url) = @_;
 
-  my $res = $self->furl->get($url);
-  die $res->status_line unless $res->is_success;
+    my $res = $self->furl->get($url);
+    die $res->status_line unless $res->is_success;
 
-  return $res;
+    return $res;
 }
 
 # Internal: Converts XML to a perl hash.
@@ -82,192 +94,227 @@ sub _request {
 #
 # Returns a hash representation of the given XML.
 sub _hashify {
-  my ($self, $in) = @_;
+    my ($self, $in) = @_;
 
-  my $parser = XML::LibXML->new();
-  my $doc    = $parser->parse_string($in);
-  my $root   = $doc->documentElement;
-  my @namespaces = $root->getNamespaces;
+    my $parser     = XML::LibXML->new();
+    my $doc        = $parser->parse_string($in);
+    my $root       = $doc->documentElement;
+    my @namespaces = $root->getNamespaces;
 
-  my $xc     = XML::LibXML::XPathContext->new( $root );
-  $xc->registerNs("srw","http://www.loc.gov/zing/srw/");
-  $xc->registerNs("d","http://www.loc.gov/zing/srw/diagnostic/");
-  
-  my $diagnostics = {};
-  my $meta;
-  my $records     = {};
+    my $xc = XML::LibXML::XPathContext->new($root);
+    $xc->registerNs("srw", $NS_SRW);
+    $xc->registerNs("d",   $NS_SRW_DIAGNOSTIC);
 
-  if ($xc->exists('/srw:searchRetrieveResponse/srw:diagnostics')) {
-    $diagnostics->{diagnostic} = [];
+    my $meta = { requestUrl => $self->url };
+    my $records = {};
 
-    for ($xc->findnodes('/srw:searchRetrieveResponse/srw:diagnostics/*')) {
-       my $uri     = $xc->findvalue('./d:uri',$_);
-       my $message = $xc->findvalue('./d:message',$_);
-       my $details = $xc->findvalue('./d:details',$_);
+    for ($xc->findnodes('/srw:searchRetrieveResponse')) {
 
-       push @{$diagnostics->{diagnostic}} ,
-                { uri => $uri , message => $message , details => $details } ;
-    }
-  } elsif ($self->_meta_get) {
-      for ($xc->findnodes('/srw:searchRetrieveResponse')) {
-        for ($xc->findnodes('./*', $_)) {
-          my $tagName = $_->tagName;
-          next if $tagName eq 'records';
-          if($tagName eq 'echoedSearchRetrieveRequest' or $tagName eq 'extraResponseData') {
-            my $key = $tagName;
-            $meta->{$key} = {};
-            for ($xc->findnodes("/srw:searchRetrieveResponse/srw:$key")) {
-              for ($xc->findnodes('./*', $_)) {
-                if(defined $_->prefix) {
-                    $xc->registerNs($_->prefix,$_->namespaceURI());
+        for ($xc->findnodes('./srw:diagnostics/d:diagnostic', $_)) {
+            my %diag = ( uri => $xc->findvalue('./d:uri', $_) );
+            $diag{message} = $_ for grep { $_ ne '' } ($xc->findvalue('./d:message', $_));
+            $diag{details} = $_ for grep { $_ ne '' } ($xc->findvalue('./d:details', $_));
+            push @{$meta->{diagnostics}}, \%diag;
+        }
+
+        for my $tag (qw(version numberOfRecords resultSetId resultSetIdleTime nextRecordPosition)) {
+            for ($xc->findnodes("./srw:$tag", $_)) {
+                $meta->{$tag} = $xc->findvalue(".", $_);
+            }
+        }
+
+        for my $tag (qw(echoedSearchRetrieveRequest extraResponseData)) {
+            for ($xc->findnodes("./srw:$tag", $_)) {
+                $meta->{$tag} = {};
+                for ($xc->findnodes('./*', $_)) {
+                    if (defined $_->prefix) {
+                        $xc->registerNs($_->prefix,
+                            $_->namespaceURI());
+                    }
+                    my $ns_uri = $_->namespaceURI;
+                    my $subTagName
+                        = is_string($ns_uri)
+                        && $ns_uri eq $NS_SRW
+                        ? $_->localname
+                        : $_->tagName;
+                    $meta->{$tag}->{$subTagName}
+                        = $xc->findvalue(".", $_);
                 }
-                my $tagName = $_->tagName;
-                $meta->{$key}->{$tagName} = $xc->findvalue(".",$_);
-              }
             }
-          } else {
-            $meta->{$tagName} = $xc->findvalue(".",$_);
         }
-      }
     }
-  }
-  
-  if ($xc->exists('/srw:searchRetrieveResponse/srw:records')) {
-      $records->{record} = [];
 
-      for ($xc->findnodes('/srw:searchRetrieveResponse/srw:records/srw:record')) {
-        my $recordSchema   = $xc->findvalue('./srw:recordSchema',$_);
-        my $recordPacking  = $xc->findvalue('./srw:recordPacking',$_);
-        my $recordData     = $xc->find('./srw:recordData/*',$_)->pop();
-        my $recordPosition = $xc->findvalue('./srw:recordPosition',$_);
+    if ($xc->exists('/srw:searchRetrieveResponse/srw:records')) {
+        $records->{record} = [];
 
-        # Copy all the root level namespaces to the record Element.
-        for (@namespaces) {
-            my $ns_prefix = $_->declaredPrefix;
-            my $ns_uri    = $_->declaredURI;
-            # Skip the SRW namespaces
-            unless ($ns_uri =~ m{http://www.loc.gov/zing/srw/}) {
-                $recordData->setNamespace($ns_uri,$ns_prefix,0);
+        for (
+            $xc->findnodes(
+                '/srw:searchRetrieveResponse/srw:records/srw:record')
+            )
+        {
+            my $recordSchema  = $xc->findvalue('./srw:recordSchema',  $_);
+            my $recordPacking = $xc->findvalue('./srw:recordPacking', $_);
+            my $recordData = $xc->find('./srw:recordData/*', $_)->pop();
+            my $recordPosition = $xc->findvalue('./srw:recordPosition', $_);
+
+            # Copy all the root level namespaces to the record Element.
+            for (@namespaces) {
+                my $ns_prefix = $_->declaredPrefix;
+                my $ns_uri    = $_->declaredURI;
+
+                # Skip the SRW namespaces
+                unless ($ns_uri =~ m{$NS_SRW}) {
+                    $recordData->setNamespace($ns_uri, $ns_prefix, 0);
+                }
             }
+
+            push @{$records->{record}}, {
+                recordSchema   => $recordSchema,
+                recordPacking  => $recordPacking,
+                recordData     => $recordData,
+                recordPosition => $recordPosition
+            };
         }
+    }
 
-        push @{$records->{record}} ,
-              { recordSchema => $recordSchema , recordPacking => $recordPacking ,
-                recordData => $recordData , recordPosition => $recordPosition };
-      }
-  }
-
-  return { diagnostics => $diagnostics , records => $records, meta => $meta };
+    return { records => $records, meta => $meta };
 }
 
 sub url {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  # construct the url
-  my $url = $self->base;
-  $url .= '?version=' . uri_escape($self->version);
-  $url .= '&operation=' .uri_escape($self->operation);
-  $url .= '&query=' . uri_escape($self->query);
-  $url .= '&recordSchema=' . uri_escape($self->recordSchema);
-  $url .= '&sortKeys=' . uri_esacpe($self->sortKeys) if $self->sortKeys;
-  $url .= '&startRecord=' . uri_escape($self->_start);
-  $url .= '&maximumRecords=' . uri_escape($self->_max_results);
+    my $limit = $self->limit;
+    my $start = $self->_start;
+    my $total = $self->total;
+    if (is_natural($total) && ($start - 1 + $limit) > $total) {
+        $limit = $total - ($start - 1);
+    }
 
-  return $url;
+    # construct the url
+    my $url = $self->base;
+    $url .= '?version=' . uri_escape($self->version);
+    $url .= '&operation=' . uri_escape($self->operation);
+    $url .= '&query=' . uri_escape($self->query);
+    $url .= '&recordSchema=' . uri_escape($self->recordSchema);
+    $url .= '&sortKeys=' . uri_esacpe($self->sortKeys) if $self->sortKeys;
+    $url .= '&startRecord=' . uri_escape($start);
+    $url .= '&maximumRecords=' . uri_escape($limit);
+
+    return $url;
 }
 
 # Internal: gets the next set of results.
 #
 # Returns a array representation of the resultset.
 sub _nextRecordSet {
-  my ($self) = @_;
+    my ($self, $quiet) = @_;
 
-  # fetch the xml response and hashify it.
-  my $res  = $self->_request($self->url);
-  my $xml  = $res->{content};
-  my $hash = $self->_hashify($xml);
+    # fetch the xml response and hashify it.
+    my $res  = $self->_request($self->url);
+    my $xml  = $res->{content};
+    my $hash = $self->_hashify($xml);
 
-  # sru specific error checking.
-  if (exists $hash->{'diagnostics'}->{'diagnostic'}) {
-    for my $error (@{$hash->{'diagnostics'}->{'diagnostic'}}) {
-        warn 'SRU DIAGNOSTIC: ', $error->{'message'} , ' : ' , $error->{'details'};
-    }
-  }
+    $self->_emit_diagnostics($hash) unless $quiet;
 
-  # get to the point.
-  my $meta = $hash->{'meta'};
-  my $set = $hash->{'records'}->{'record'};
+    # get to the point.
+    my $meta = $hash->{'meta'};
+    my $set  = $hash->{'records'}->{'record'};
 
-  # return a reference to a array.
-  return { record => \@{$set}, meta => $meta };
+    # return records and metareference to a array.
+    { record => \@{$set}, meta => $meta };
 }
 
 # Internal: gets the next record from our current resultset.
 #
 # Returns a hash representation of the next record.
 sub _nextRecord {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  # fetch recordset if we don't have one yet.
-  $self->{_currentRecordSet} = $self->_nextRecordSet unless $self->_currentRecordSet;
+    # fetch recordset if we don't have one yet.
+    $self->{_currentRecordSet} = $self->_nextRecordSet
+        unless $self->_currentRecordSet;
 
-  # check for a exhaused recordset.
-  if ($self->_n >= $self->_max_results) {
-    $self->{_start} += $self->_max_results;
-    $self->{_n} = 0;
-    $self->{_currentRecordSet} = $self->_nextRecordSet;
-  }
-
-  # return the next record or metadata.
-  my $record = $self->{_currentRecordSet}->{record}->[$self->{_n}++];
-
-  if (defined $record) {
-    if (is_code_ref($self->parser)) {
-        $record = $self->parser->($record);
-    } else {
-        $record = $self->parser->parse($record);
+    # check for a exhaused recordset.
+    if ($self->_n >= $self->limit) {
+        $self->{_start} += $self->limit;
+        $self->{_n}                = 0;
+        $self->{_currentRecordSet} = $self->_nextRecordSet;
     }
-  }
-  return $record;
+
+    # return the next record or metadata.
+    my $record = $self->{_currentRecordSet}->{record}->[$self->{_n}++];
+
+    if (defined $record) {
+        if (is_code_ref($self->parser)) {
+            $record = $self->parser->($record);
+        }
+        else {
+            $record = $self->parser->parse($record);
+        }
+    }
+
+    $record;
 }
 
-# Internal: gets searchRetrieveResponse metadata of the request
-#
-# Returns a hash representation of the metadata.
-sub _meta {
-  my ($self) = @_;
+# Internal: emit warnings for diagnostics
+sub _emit_diagnostics {
+    my ($self, $hash) = @_;
 
-  my $meta;
-  if($self->_meta_destr) {
-    $self->{_currentRecordSet} = $self->_nextRecordSet;
-    $meta = $self->{_currentRecordSet}->{meta};
-    $meta = $self->parser->parse($meta);
-    $self->{_meta_destr} = 0;
-  }
-
-  return $meta;
+    for my $diag (@{$hash->{meta}{diagnostics} // []}) {
+        warn join ' : ', grep { defined } map { $diag->{$_} } qw(uri message details);
+    }
 }
 
 # Public Methods. --------------------------------------------------------------
 
 sub generator {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  if (ref $self->parser eq 'Catmandu::Importer::SRU::Parser::meta') {
-    $self->{_meta_get} = 1;
+    if (ref $self->parser eq 'Catmandu::Importer::SRU::Parser::meta') {
+        my $done;
+        return sub {
+            return if $done;
+            $done = 1;
+            $self->{_currentRecordSet} = $self->_nextRecordSet(1);
+            $self->{_currentRecordSet}->{meta};
+        };
+    }
+
     return sub {
-      $self->_meta;
+        $self->_nextRecord;
     };
-  }
-
-  return sub {
-    $self->_nextRecord;
-  };
 }
+
+sub count {
+    my ($self) = @_;
+
+    my $url
+        = $self->base
+        . '?version='
+        . uri_escape($self->version)
+        . '&operation='
+        . uri_escape($self->operation)
+        . '&query='
+        . uri_escape($self->query)
+        . '&recordSchema='
+        . uri_escape($self->recordSchema)
+        . '&maximumRecords=0';
+
+    # fetch the xml response and hashify it.
+    my $xml = $self->_request($url)->{content};
+    my $hash = $self->_hashify($xml);
+
+    $self->_emit_diagnostics($hash);
+
+    int($hash->{meta}->{numberOfRecords});
+}
+
+1;
+__END__
 
 =head1 NAME
 
-  Catmandu::Importer::SRU - Package that imports SRU data
+Catmandu::Importer::SRU - Package that imports SRU data
 
 =head1 SYNOPSIS
 
@@ -308,33 +355,52 @@ sub generator {
     parser => MyParser->new , # or parser => '+MyParser'
   );
 
+=head1 DESCRIPTION
+
+This L<Catmandu::Importer> imports records via SRU.
+
+SRU diagnostics are emitted as warnings except for parser set to C<meta>.
+
 =head1 CONFIGURATION
 
 =over
 
 =item base
 
-base URL of the SRU server (required)
+Base URL of the SRU server (required)
 
 =item query
 
 CQL query (required)
 
+=item limit
+
+Number of records to fetch in one batch, set to C<10> by default.
+This is translated to SRU request parameter C<maximumRecords>.
+
+Records are fetched in multiple batches of this size or less.
+
+=item total
+
+Total number of records this importer may return.
+
+Not set by default
+
 =item recordSchema
 
-set to C<dc> by default
+Set to C<dc> by default
 
 =item sortkeys
 
-optional sorting
+Optional sorting
 
 =item operation
 
-set to C<searchRetrieve> by default
+Set to C<searchRetrieve> by default
 
 =item version
 
-set to C<1.1> by default.
+Set to C<1.1> by default
 
 =item userAgent
 
@@ -368,8 +434,6 @@ Function reference that gets passed the unparsed record.
 
 =back
 
-=back
-
 =head1 METHODS
 
 All methods of L<Catmandu::Importer> and by this L<Catmandu::Iterable> are
@@ -386,5 +450,3 @@ L<Catmandu::Iterable>,
 L<http://www.loc.gov/standards/sru/>
 
 =cut
-
-1;

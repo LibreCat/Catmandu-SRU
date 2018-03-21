@@ -1,3 +1,28 @@
+package Catmandu::Importer::SRU::Parser::struct;
+use strict;
+use Moo;
+use XML::Struct ();
+
+our $VERSION = '0.41';
+
+has _reader => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => sub {
+        XML::Struct::Reader->new();
+    }
+);
+
+sub parse {
+    my ($self, $record) = @_;
+    my $stream = XML::LibXML::Reader->new(
+        string => $record->{recordData}->toString(0, 0));
+    $self->_reader->readDocument($stream);
+}
+
+1;
+__END__
+
 =head1 NAME
 
 Catmandu::Importer::SRU::Parser::struct - transform SRU responses into structured XML records
@@ -38,21 +63,3 @@ reader as following, if needed:
 Jakob Voss C<< voss@gbv.de >>
 
 =cut
-package Catmandu::Importer::SRU::Parser::struct;
-use strict;
-use Moo;
-use XML::Struct ();
-
-our $VERSION = '0.040';
-
-has _reader => (is => 'ro', lazy => 1, builder => sub {
-    XML::Struct::Reader->new();
-});
-
-sub parse {
-	my ($self, $record) = @_;
-    my $stream = XML::LibXML::Reader->new( string => $record->{recordData}->toString(0,0) );
-    $self->_reader->readDocument( $stream );
-}
-
-1;

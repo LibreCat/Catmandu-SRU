@@ -1,7 +1,11 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+  - Fix treatment of namespaces in meta Parser (#31)
 
+0.41  2017-07-12 09:17:12 CEST
+  - Fixing MODS encoding issue
+  
 0.040  2017-07-07 08:35:12 CEST
   - Adding support for namespace prefixes declared in the SRU response header
   - Adding a `mods` parser
