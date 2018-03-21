@@ -1,3 +1,26 @@
+package Catmandu::Importer::SRU::Parser::simple;
+use strict;
+use XML::LibXML::Simple ();
+use Moo;
+
+our $VERSION = '0.41';
+
+has xmlsimple => (is => 'ro', default => sub { XML::LibXML::Simple->new });
+
+sub parse {
+    my ($self, $record) = @_;
+
+    $record->{recordData} = $self->xmlsimple->XMLin(
+        $record->{recordData}->toString,
+        KeepRoot => 1,
+        NsStrip  => 1
+    );
+
+    $record;
+}
+
+1;
+__END__
 
 =head1 NAME
 
@@ -21,26 +44,3 @@ Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
 Jakob Voss C<< voss@gbv.de >>
 
 =cut
-
-package Catmandu::Importer::SRU::Parser::simple;
-use strict;
-use XML::LibXML::Simple ();
-use Moo;
-
-our $VERSION = '0.41';
-
-has xmlsimple => (is => 'ro', default => sub {XML::LibXML::Simple->new});
-
-sub parse {
-    my ($self, $record) = @_;
-
-    $record->{recordData} = $self->xmlsimple->XMLin(
-        $record->{recordData}->toString,
-        KeepRoot => 1,
-        NsStrip  => 1
-    );
-
-    $record;
-}
-
-1;

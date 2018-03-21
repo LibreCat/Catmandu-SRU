@@ -351,9 +351,12 @@ sub count {
 
 }
 
+1;
+__END__
+
 =head1 NAME
 
-  Catmandu::Importer::SRU - Package that imports SRU data
+Catmandu::Importer::SRU - Package that imports SRU data
 
 =head1 SYNOPSIS
 
@@ -400,7 +403,7 @@ sub count {
 
 =item base
 
-base URL of the SRU server (required)
+Base URL of the SRU server (required)
 
 =item query
 
@@ -408,35 +411,32 @@ CQL query (required)
 
 =item limit
 
-Number of records to fetch in one batch.
+Number of records to fetch in one batch, set to C<10> by default.
+This is translated to SRU request parameter C<maximumRecords>.
 
-Remember that records are fetched in batches, and not in one request.
-
-Set to C<10> by default.
-
-This is translated to maximumRecords in the background.
+Records are fetched in multiple batches of this size or less.
 
 =item total
 
 Total number of records this importer may return.
 
-Not set by default.
+Not set by default
 
 =item recordSchema
 
-set to C<dc> by default
+Set to C<dc> by default
 
 =item sortkeys
 
-optional sorting
+Optional sorting
 
 =item operation
 
-set to C<searchRetrieve> by default
+Set to C<searchRetrieve> by default
 
 =item version
 
-set to C<1.1> by default.
+Set to C<1.1> by default
 
 =item userAgent
 
@@ -488,5 +488,3 @@ L<Catmandu::Iterable>,
 L<http://www.loc.gov/standards/sru/>
 
 =cut
-
-1;
