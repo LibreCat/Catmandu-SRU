@@ -24,9 +24,9 @@ is scalar @{$records}, 5, 'marc has 5 records';
 ok exists $records->[0]->{_id},    'marc has _id';
 ok exists $records->[0]->{record}, 'marc has record';
 is_deeply $records->[0]->{record}->[0],
-    [ 'LDR', ' ', ' ', '_', '00000ndd a2200000 u 4500' ], 'marc has leader';
-is_deeply $records->[0]->{record}->[1],
-    [ '001', ' ', ' ', '_', '004641415' ], 'marc has controlfield';
+    ['LDR', ' ', ' ', '_', '00000ndd a2200000 u 4500'], 'marc has leader';
+is_deeply $records->[0]->{record}->[1], ['001', ' ', ' ', '_', '004641415'],
+    'marc has controlfield';
 is_deeply $records->[0]->{record}->[-1],
     [
     '852',

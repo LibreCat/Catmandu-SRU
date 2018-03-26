@@ -3,23 +3,27 @@ package Catmandu::Importer::SRU::Parser;
 use Moo;
 use XML::LibXML::Simple qw(XMLin);
 
-our $VERSION = '0.040';
+our $VERSION = '0.41';
 
 sub parse {
-	my ($self,$record) = @_;
+    my ($self, $record) = @_;
 
-	return unless defined $record;
+    return unless defined $record;
 
-	# By default we use XML::LibXML::Simple to keep backwards compatible...
+    # By default we use XML::LibXML::Simple to keep backwards compatible...
     my $xs = XML::LibXML::Simple->new();
-    $record->{recordData} = $xs->XMLin($record->{recordData} , KeepRoot => 1, NsStrip => 1);
+    $record->{recordData}
+        = $xs->XMLin($record->{recordData}, KeepRoot => 1, NsStrip => 1);
 
     $record;
 }
 
+1;
+__END__
+
 =head1 NAME
 
-  Catmandu::Importer::SRU::Parser - Package transforms SRU responses into Perl
+Catmandu::Importer::SRU::Parser - Package transforms SRU responses into Perl
 
 =head1 SYNOPSIS
 
@@ -40,14 +44,12 @@ sub parse {
 
 =head1 DESCRIPTION
 
-Catmandu::Importer::SRU can optionally include a parser to transform the
+L<Catmandu::Importer::SRU> can optionally include a parser to transform the
 returned records from SRU requests.  Any such parser needs to implement one
-instance method 'parse' which receives an SRU-record and returns a perl hash;
+instance method C<parse> which receives an SRU-record and returns a perl hash.
 
 =head1 AUTHOR
 
 Patrick Hochstenbach, C<< <patrick.hochstenbach at ugent.be> >>
 
 =cut
-
-1;
