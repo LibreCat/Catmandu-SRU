@@ -1,6 +1,7 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+  - Fixing test
 
 0.42  2018-03-26 10:01:46 CEST
   - Add pica parser
