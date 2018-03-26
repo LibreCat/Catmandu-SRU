@@ -1,8 +1,20 @@
 use strict;
+use warnings;
 use Test::More;
+use Test::Exception;
 use Catmandu::Importer::SRU;
+use utf8;
 
 require 't/lib/MockFurl.pm';
+
+my $pkg;
+
+BEGIN {
+    $pkg = 'Catmandu::Importer::SRU::Parser::meta';
+    use_ok $pkg;
+}
+
+require_ok $pkg;
 
 my $importer = Catmandu::Importer::SRU->new(
     base   => 'http://example.org/',

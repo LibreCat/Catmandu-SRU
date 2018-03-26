@@ -5,6 +5,7 @@
 _build
 blib
 Build
+/Catmandu-*
 cover_db
 LICENSE
 Makefile.PL
@@ -12,7 +13,6 @@ MANIFEST*
 META.json
 MYMETA.*
 local
-Catmandu-*
 cpanfile.snapshot
 !*.t
 .perl-version
