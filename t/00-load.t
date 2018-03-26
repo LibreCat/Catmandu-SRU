@@ -3,6 +3,7 @@ use warnings;
 use Test::More;
 
 my $pkg;
+
 BEGIN {
     $pkg = 'Catmandu::Importer::SRU';
     use_ok $pkg;

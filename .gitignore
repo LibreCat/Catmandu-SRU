@@ -16,3 +16,4 @@ Catmandu-*
 cpanfile.snapshot
 !*.t
 .perl-version
+.tidyall.d/
