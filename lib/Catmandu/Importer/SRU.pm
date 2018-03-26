@@ -415,7 +415,7 @@ Instance of L<Furl> or compatible class to fetch URLs with.
 Controls how records are parsed before importing. The following options
 are possible:
 
-=over
+=over 2
 
 =item
 
@@ -431,6 +431,8 @@ instance C<marcxml> will create a C<Catmandu::Importer::SRU::Parser::marcxml>.
 =item
 
 Function reference that gets passed the unparsed record.
+
+=back
 
 =back
 
