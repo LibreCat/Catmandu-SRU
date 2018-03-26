@@ -6,7 +6,7 @@ use Test::Exception;
 my $pkg;
 
 BEGIN {
-    $pkg = 'Catmandu::Importer::SRU::parser';
+    $pkg = 'Catmandu::Importer::SRU::Parser';
     use_ok $pkg;
 }
 
