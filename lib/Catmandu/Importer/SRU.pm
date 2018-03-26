@@ -10,7 +10,7 @@ use Carp;
 use XML::LibXML;
 use XML::LibXML::XPathContext;
 
-our $VERSION = '0.42';
+our $VERSION = '0.421';
 
 with 'Catmandu::Importer';
 
