@@ -36,7 +36,7 @@ Catmandu::Importer::SRU::Parser::picaxml - parse SRU records containing PICAXML
 =head1 SYNOPSIS
 
 This SRU record parser (see L<Catmandu::Importer::SRU>) parses the SRU response
-record field C<recordData> as L<PICA XML|http://format.gbv.de/pica/xml> format and 
+record field C<recordData> as L<PICA XML|http://format.gbv.de/pica/xml> format and
 returns L<PICA JSON|http://format.gbv.de/pica/json> structure as also implemented by
 L<Catmandu::Importer::PICA>.
 
@@ -45,7 +45,7 @@ other XML formats with this parser may result in strange records.
 
 =head1 AUTHOR
 
-Jakob Voß C<< voss@gbv.de >>
+Jakob Voss C<< voss@gbv.de >>
 
 =encoding utf8
 
