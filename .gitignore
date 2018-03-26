@@ -8,6 +8,7 @@ Build
 /Catmandu-*
 cover_db
 LICENSE
+Makefile
 Makefile.PL
 MANIFEST*
 META.json
