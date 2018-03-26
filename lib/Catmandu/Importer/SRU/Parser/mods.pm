@@ -6,7 +6,7 @@ use Cpanel::JSON::XS;
 
 use Moo;
 
-our $VERSION = '0.41';
+our $VERSION = '0.42';
 
 sub parse {
     my ($self, $record) = @_;

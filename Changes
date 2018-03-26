@@ -1,6 +1,8 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+
+0.42  2018-03-26 10:01:46 CEST
   - Add pica parser
   - Fix treatment of namespaces in meta Parser (#31)
   - Making batch sizes configurable

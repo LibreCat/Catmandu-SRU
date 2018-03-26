@@ -1,6 +1,6 @@
 package Catmandu::SRU;
 
-our $VERSION = '0.41';
+our $VERSION = '0.42';
 
 =head1 NAME
 
