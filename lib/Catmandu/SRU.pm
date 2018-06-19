@@ -71,6 +71,8 @@ Catmandu::SRU - Catmandu module for working with SRU data
 
 =item L<Catmandu::Importer::SRU::Parser::mods>
 
+=item L<Catmandu::Importer::SRU::Parser::picaxml>
+
 =back
 
 =head1 SEE ALSO
