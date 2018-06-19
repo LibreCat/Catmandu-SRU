@@ -25,6 +25,7 @@ my %module_build_args = (
   "requires" => {
     "Catmandu" => "0.9204",
     "Catmandu::MODS" => "0.31",
+    "Catmandu::PICA" => 0,
     "Cpanel::JSON::XS" => "3.0213",
     "Furl" => "0.41",
     "Moo" => "1.005000",

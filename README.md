@@ -63,7 +63,6 @@ Catmandu::SRU - Catmandu module for working with SRU data
 [Catmandu::Fix](https://metacpan.org/pod/Catmandu::Fix),
 [Catmandu::Exporter](https://metacpan.org/pod/Catmandu::Exporter),
 [Catmandu::MARC](https://metacpan.org/pod/Catmandu::MARC)
-[Catmandu::PICA](https://metacpan.org/pod/Catmandu::PICA)
 
 # AUTHOR
 
