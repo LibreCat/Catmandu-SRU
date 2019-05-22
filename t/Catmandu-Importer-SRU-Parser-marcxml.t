@@ -4,8 +4,9 @@ use Test::More;
 use Test::Exception;
 use Catmandu::Importer::SRU;
 use utf8;
-
-require 't/lib/MockFurl.pm';
+use lib 't/lib';
+use MockFurl;
+use MockFurlMany;
 
 my $pkg;
 

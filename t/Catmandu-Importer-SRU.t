@@ -4,7 +4,8 @@ use Test::More;
 use Test::Exception;
 use Catmandu::Importer::SRU;
 use Catmandu::Importer::SRU::Parser::marcxml;
-require 't/lib/MockFurl.pm';
+use lib 't/lib';
+use MockFurl;
 
 my $pkg;
 
