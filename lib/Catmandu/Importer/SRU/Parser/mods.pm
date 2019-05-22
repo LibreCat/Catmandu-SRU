@@ -14,7 +14,7 @@ sub parse {
     my $xml = $record->{recordData}->toString();
 
     my $importer = Catmandu::Importer::MODS->new(file => \$xml);
-    my $mods = $importer->first;
+    my $mods     = $importer->first;
 
     if (defined $mods) {
         my $id = $mods->get_identifier->{_body};

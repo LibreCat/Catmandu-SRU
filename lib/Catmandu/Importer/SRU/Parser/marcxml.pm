@@ -14,7 +14,7 @@ sub parse {
     my $id = undef;
 
     for my $field ($marc->getChildrenByLocalName('*')) {
-        my $name = $field->localname;
+        my $name  = $field->localname;
         my $value = $field->textContent // '';
         if ($name eq 'leader') {
             push @out, ['LDR', ' ', ' ', '_', $value];

@@ -24,8 +24,8 @@ my %options = (
 );
 
 ok my $importer = Catmandu::Importer::SRU->new(%options);
-my $rec = $importer->next;
-my $expected =     [
+my $rec      = $importer->next;
+my $expected = [
     'oai_dc:dc',
     {
         'xmlns:dc'     => 'http://purl.org/dc/elements/1.1/',
@@ -40,11 +40,11 @@ my $expected =     [
             ['2013']
         ]
     ]
-    ];
+];
 
 is_deeply $rec, $expected, 'first';
 
-$rec = $importer->next;
+$rec      = $importer->next;
 $expected = [
     'oai_dc:dc',
     {
@@ -52,7 +52,7 @@ $expected = [
         'xmlns:oai_dc' => 'http://www.openarchives.org/OAI/2.0/oai_dc/'
     },
     [['dc:title', {}, ['Another Title']]]
-    ];
+];
 
 is_deeply $rec, $expected, 'second';
 
@@ -63,7 +63,7 @@ $options{parser} = sub {
 };
 $importer = Catmandu::Importer::SRU->new(%options);
 $importer->next;
-$rec = $importer->next;
+$rec      = $importer->next;
 $expected = [dc => [['title' => ['Another Title']]]];
 
 is_deeply $rec, $expected, 'reader options';
