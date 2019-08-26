@@ -18,7 +18,7 @@ my %module_build_args = (
     "Wouter Willaert, C<< <wouterw\@inuits.eu> >>"
   ],
   "dist_name" => "Catmandu-SRU",
-  "dist_version" => "0.423",
+  "dist_version" => "0.424",
   "license" => "perl",
   "module_name" => "Catmandu::SRU",
   "recursive_test_files" => 1,
