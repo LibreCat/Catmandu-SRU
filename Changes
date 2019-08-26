@@ -1,6 +1,8 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+
+0.423  2019-08-26 13:23:18 CEST
   - Fix travis configuration
   - new search_sru fix
 
