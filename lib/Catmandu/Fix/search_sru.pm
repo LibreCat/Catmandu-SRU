@@ -10,19 +10,19 @@ use Catmandu::Fix::Has;
 
 with 'Catmandu::Fix::Builder';
 
-has path         => ( fix_arg => 1 );
-has base         => ( fix_arg => 1 );
-has recordschema => ( fix_opt => 1, default => sub {'oai_dc'} );
-has parser       => ( fix_opt => 1, default => sub {'simple'} );
-has limit        => ( fix_opt => 1, default => sub {10} );
-has fixes        => ( fix_opt => 1 );
+has path         => (fix_arg => 1);
+has base         => (fix_arg => 1);
+has recordschema => (fix_opt => 1, default => sub {'oai_dc'});
+has parser       => (fix_opt => 1, default => sub {'simple'});
+has limit        => (fix_opt => 1, default => sub {10});
+has fixes        => (fix_opt => 1);
 
 sub _build_fixer {
     my ($self) = @_;
-    as_path( $self->path )->updater(
+    as_path($self->path)->updater(
         if_string => sub {
             my $query = shift;
-            if ( my $response = $self->sru_request($query) ) {
+            if (my $response = $self->sru_request($query)) {
                 return $response if defined $response->[0];
             }
             return $query;
@@ -31,7 +31,7 @@ sub _build_fixer {
 }
 
 sub sru_request {
-    my ( $self, $query ) = @_;
+    my ($self, $query) = @_;
     my $importer = Catmandu->importer(
         'SRU',
         base         => $self->base,
@@ -41,7 +41,7 @@ sub sru_request {
         limit        => $self->limit,
     );
     my $records;
-    if ( my $fixes = $self->fixes ) {
+    if (my $fixes = $self->fixes) {
         my $fixer = Catmandu->fixer($fixes);
         $records = $fixer->fix($importer)->to_array;
 
