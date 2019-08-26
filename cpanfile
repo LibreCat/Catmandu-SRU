@@ -1,10 +1,11 @@
 requires 'perl', 'v5.10.1';
 
 on 'test', sub {
-  requires 'Test::Simple', '1.001003';  # Core
-  requires 'Test::More', '1.001003';    # Core
   requires 'Test::Exception';
+  requires 'Test::HTTP::LocalServer';
+  requires 'Test::More', '1.001003';    # Core
   requires 'Test::Pod';
+  requires 'Test::Simple', '1.001003';  # Core
   requires 'XML::XPath', '1.13';
 };
 
