@@ -1,6 +1,7 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+  - remove the picaxml parser (now part of Catmandu-PICA)
 
 0.423  2019-08-26 13:23:18 CEST
   - Fix travis configuration
