@@ -1,6 +1,8 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+  - Fix travis configuration
+  - new search_sru fix
 
 0.422  2019-05-22 11:28:26 CEST
   - Fixing tests
