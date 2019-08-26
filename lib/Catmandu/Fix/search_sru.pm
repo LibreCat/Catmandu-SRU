@@ -1,6 +1,6 @@
 package Catmandu::Fix::search_sru;
 
-our $VERSION = '0.423';
+our $VERSION = '0.424';
 
 use Moo;
 use namespace::clean;
