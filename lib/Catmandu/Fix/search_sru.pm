@@ -12,10 +12,11 @@ with 'Catmandu::Fix::Builder';
 
 has path         => (fix_arg => 1);
 has base         => (fix_arg => 1);
-has recordschema => (fix_opt => 1, default => sub {'oai_dc'});
-has parser       => (fix_opt => 1, default => sub {'simple'});
-has limit        => (fix_opt => 1, default => sub {10});
 has fixes        => (fix_opt => 1);
+has limit        => (fix_opt => 1, default => sub {10}); #deprecated
+has parser       => (fix_opt => 1, default => sub {'simple'});
+has recordschema => (fix_opt => 1, default => sub {'oai_dc'});
+has total        => (fix_opt => 1, default => sub {10});
 
 sub _build_fixer {
     my ($self) = @_;
@@ -38,7 +39,7 @@ sub sru_request {
         parser       => $self->parser,
         query        => $query,
         recordSchema => $self->recordschema,
-        limit        => $self->limit,
+        total        => $self->total,
     );
     my $records;
     if (my $fixes = $self->fixes) {
@@ -98,9 +99,9 @@ Available parsers: 'marcxml', 'meta', 'mods', 'picaxml', 'raw', 'simple', 'struc
  
 Default is 'simple'.
 
-=head2 limit
+=head2 total
  
-Number of records to fetch. This is translated to SRU request parameter maximumRecords.
+Maximum number of records to fetch. This is translated to SRU request parameter maximumRecords.
 
 Default is 10.
  
