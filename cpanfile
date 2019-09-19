@@ -15,6 +15,8 @@ requires 'Cpanel::JSON::XS', '3.0213';    # implied by Catmandu
 requires 'YAML::XS', '0.34';    # implied by Catmandu
 requires 'Moo', '1.005000';     # implied by Catmandu
 
+requires 'XML::LibXML::XPathContext';
+requires 'namespace::clean';
 requires 'Furl', '0.41';
 requires 'XML::Struct', '0.16';
 requires 'XML::LibXML::Simple', '0.91';
