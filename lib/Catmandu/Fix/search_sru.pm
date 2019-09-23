@@ -13,7 +13,7 @@ with 'Catmandu::Fix::Builder';
 has path         => (fix_arg => 1);
 has base         => (fix_arg => 1);
 has fixes        => (fix_opt => 1);
-has limit        => (fix_opt => 1, default => sub {10}); #deprecated
+has limit        => (fix_opt => 1, default => sub {10});
 has parser       => (fix_opt => 1, default => sub {'simple'});
 has recordschema => (fix_opt => 1, default => sub {'oai_dc'});
 has total        => (fix_opt => 1, default => sub {10});
@@ -36,6 +36,7 @@ sub sru_request {
     my $importer = Catmandu->importer(
         'SRU',
         base         => $self->base,
+        limit        => $self->limit,
         parser       => $self->parser,
         query        => $query,
         recordSchema => $self->recordschema,
@@ -65,7 +66,7 @@ Catmandu::Fix::search_sru - use the value as SRU query, and replace it by SRU se
   
  search_sru( <path>, <url> )
   
- search_sru( <path>, <url>, [recordschema:<SCHEMA>], [parser:<PARSER>], [limit:<INTEGER>], [fixes :<STRING|FILE>] )
+ search_sru( <path>, <url>, [recordschema:<SCHEMA>], [parser:<PARSER>], [limit:<INTEGER>], [total:<INTEGER>], [fixes:<STRING|FILE>] )
 
  # From the command line
 
@@ -87,7 +88,7 @@ Base URL of the SRU server.
  
 =head2 recordschema
  
-SRU record schema. Use SRU Explain operation to look up available schemas.
+SRU record schema. Use SRU Explain operation to look up available schema.
  
 Default is 'oai_dc'.
  
@@ -99,9 +100,13 @@ Available parsers: 'marcxml', 'meta', 'mods', 'picaxml', 'raw', 'simple', 'struc
  
 Default is 'simple'.
 
+=head2 limit
+ 
+Maximum number of records to fetch per request.
+
 =head2 total
  
-Maximum number of records to fetch. This is translated to SRU request parameter maximumRecords.
+Maximum number of records to fetch from a result set.
 
 Default is 10.
  
