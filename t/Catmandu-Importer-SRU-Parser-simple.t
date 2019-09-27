@@ -5,7 +5,7 @@ use Test::Exception;
 use Catmandu::Importer::SRU;
 use utf8;
 use lib 't/lib';
-use MockFurl;
+use MockHTTPClient;
 
 my $pkg;
 
@@ -19,7 +19,7 @@ require_ok $pkg;
 my %options = (
     base   => 'http://example.org/',
     query  => 'sru_oai_dc.xml',
-    furl   => MockFurl->new,
+    http_client   => MockHTTPClient->new,
     parser => 'simple',
 );
 
