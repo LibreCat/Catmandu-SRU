@@ -21,7 +21,7 @@ has version      => (is => 'ro', default  => sub {'1.1'});
 has operation    => (is => 'ro', default  => sub {'searchRetrieve'});
 has recordSchema => (is => 'ro', default  => sub {'dc'});
 has userAgent    => (is => 'ro', default  => sub {'Mozilla/5.0'});
-has http_client  => (
+has http_client => (
     is      => 'ro',
     lazy    => 1,
     builder => sub {
@@ -83,7 +83,8 @@ sub _request {
     my ($self, $url) = @_;
 
     my $res = $self->http_client->get($url);
-    die join(" ", grep defined, $res->{status}, $res->{reason}) unless $res->{success};
+    die join(" ", grep defined, $res->{status}, $res->{reason})
+        unless $res->{success};
 
     return $res;
 }

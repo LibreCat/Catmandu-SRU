@@ -21,7 +21,7 @@ my %attrs = (
     query        => 'mods.xml',
     recordSchema => 'mods',
     parser       => 'mods',
-    http_client         => MockHTTPClient->new,
+    http_client  => MockHTTPClient->new,
 );
 
 my $importer = Catmandu::Importer::SRU->new(%attrs);

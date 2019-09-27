@@ -17,10 +17,10 @@ BEGIN {
 require_ok $pkg;
 
 my $importer = Catmandu::Importer::SRU->new(
-    base   => 'http://example.org/',
-    query  => 'meta.xml',
-    http_client   => MockHTTPClient->new,
-    parser => 'meta',
+    base        => 'http://example.org/',
+    query       => 'meta.xml',
+    http_client => MockHTTPClient->new,
+    parser      => 'meta',
 );
 
 is_deeply {

@@ -7,12 +7,7 @@ sub get {
     my ($self, $url) = @_;
     $url =~ /query=([^&]+)/;
     my $xml = do {local (@ARGV, $/) = "t/files/$1"; <>};
-    {
-        success => 1,
-        status  => 200,
-        reason  => 'OK',
-        content => $xml,
-    };
+    {success => 1, status => 200, reason => 'OK', content => $xml,};
 }
 
 1;
