@@ -1,6 +1,7 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+  - correctly handle utf8 characters in query
 
 0.427  2019-09-27 11:56:22 CEST
   - replace Furl with HTTP::Tiny to support Ipv6
