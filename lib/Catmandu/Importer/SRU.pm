@@ -199,7 +199,8 @@ sub url {
     $url .= '&operation=' . uri_escape($self->operation);
     $url .= '&query=' . uri_escape_utf8($self->query);
     $url .= '&recordSchema=' . uri_escape($self->recordSchema);
-    $url .= '&sortKeys=' . uri_escape_utf8($self->sortKeys) if $self->sortKeys;
+    $url .= '&sortKeys=' . uri_escape_utf8($self->sortKeys)
+        if $self->sortKeys;
     $url .= '&startRecord=' . uri_escape($start);
     $url .= '&maximumRecords=' . uri_escape($limit);
 
