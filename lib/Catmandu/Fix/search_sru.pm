@@ -16,7 +16,7 @@ has fixes        => (fix_opt => 1);
 has limit        => (fix_opt => 1, default => sub {10});
 has parser       => (fix_opt => 1, default => sub {'simple'});
 has recordschema => (fix_opt => 1, default => sub {'oai_dc'});
-has total        => (fix_opt => 1, default => sub {10});
+has total        => (fix_opt => 1);
 
 sub _build_fixer {
     my ($self) = @_;
@@ -33,15 +33,27 @@ sub _build_fixer {
 
 sub sru_request {
     my ($self, $query) = @_;
-    my $importer = Catmandu->importer(
-        'SRU',
-        base         => $self->base,
-        limit        => $self->limit,
-        parser       => $self->parser,
-        query        => $query,
-        recordSchema => $self->recordschema,
-        total        => $self->total,
-    );
+    my $importer;
+    if ($self->total) {
+        $importer = Catmandu->importer(
+            'SRU',
+            base         => $self->base,
+            limit        => $self->limit,
+            parser       => $self->parser,
+            query        => $query,
+            recordSchema => $self->recordschema,
+            total        => $self->total,
+        );
+    } else {
+        $importer = Catmandu->importer(
+            'SRU',
+            base         => $self->base,
+            limit        => $self->limit,
+            parser       => $self->parser,
+            query        => $query,
+            recordSchema => $self->recordschema,
+        );
+    }
     my $records;
     if (my $fixes = $self->fixes) {
         my $fixer = Catmandu->fixer($fixes);
@@ -104,11 +116,11 @@ Default is 'simple'.
  
 Maximum number of records to fetch per request.
 
+Default is 10.
+
 =head2 total
  
 Maximum number of records to fetch from a result set.
-
-Default is 10.
  
 =head2 fixes
  
