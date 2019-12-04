@@ -124,7 +124,7 @@ Maximum number of records to fetch from a result set.
  
 =head2 fixes
  
- L<Catmandu::Fix> to transform the parsed records of the SRU response.
+L<Catmandu::Fix> to transform the parsed records of the SRU response.
    
 =head1 SEE ALSO
  
