@@ -9,6 +9,7 @@ my $pkg;
 BEGIN {
     $pkg = 'Catmandu::Fix::search_sru';
     use_ok $pkg;
+    $ENV{'http_proxy'} = '';
 }
 
 require_ok $pkg;
