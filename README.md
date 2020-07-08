@@ -45,24 +45,24 @@ Catmandu::SRU - Catmandu module for working with SRU data
 
 # MODULES
 
-- [Catmandu::Importer::SRU](https://metacpan.org/pod/Catmandu::Importer::SRU)
-- [Catmandu::Importer::SRU::Parser](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser)
-- [Catmandu::Importer::SRU::Parser::raw](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::raw)
-- [Catmandu::Importer::SRU::Parser::simple](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::simple)
-- [Catmandu::Importer::SRU::Parser::struct](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::struct)
-- [Catmandu::Importer::SRU::Parser::marcxml](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::marcxml)
-- [Catmandu::Importer::SRU::Parser::meta](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::meta)
-- [Catmandu::Importer::SRU::Parser::mods](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::mods)
-- [Catmandu::Importer::SRU::Parser::picaxml](https://metacpan.org/pod/Catmandu::Importer::SRU::Parser::picaxml)
-- [Catmandu::Fix::sru\_search](https://metacpan.org/pod/Catmandu::Fix::sru_search)
+- [Catmandu::Importer::SRU](https://metacpan.org/pod/Catmandu%3A%3AImporter%3A%3ASRU)
+- [Catmandu::Importer::SRU::Parser](https://metacpan.org/pod/Catmandu%3A%3AImporter%3A%3ASRU%3A%3AParser)
+- [Catmandu::Importer::SRU::Parser::raw](https://metacpan.org/pod/Catmandu%3A%3AImporter%3A%3ASRU%3A%3AParser%3A%3Araw)
+- [Catmandu::Importer::SRU::Parser::simple](https://metacpan.org/pod/Catmandu%3A%3AImporter%3A%3ASRU%3A%3AParser%3A%3Asimple)
+- [Catmandu::Importer::SRU::Parser::struct](https://metacpan.org/pod/Catmandu%3A%3AImporter%3A%3ASRU%3A%3AParser%3A%3Astruct)
+- [Catmandu::Importer::SRU::Parser::marcxml](https://metacpan.org/pod/Catmandu%3A%3AImporter%3A%3ASRU%3A%3AParser%3A%3Amarcxml)
+- [Catmandu::Importer::SRU::Parser::meta](https://metacpan.org/pod/Catmandu%3A%3AImporter%3A%3ASRU%3A%3AParser%3A%3Ameta)
+- [Catmandu::Importer::SRU::Parser::mods](https://metacpan.org/pod/Catmandu%3A%3AImporter%3A%3ASRU%3A%3AParser%3A%3Amods)
+- [Catmandu::Importer::SRU::Parser::picaxml](https://metacpan.org/pod/Catmandu%3A%3AImporter%3A%3ASRU%3A%3AParser%3A%3Apicaxml)
+- [Catmandu::Fix::search\_sru](https://metacpan.org/pod/Catmandu%3A%3AFix%3A%3Asearch_sru)
 
 # SEE ALSO
 
 [Catmandu](https://metacpan.org/pod/Catmandu),
-[Catmandu::Importer](https://metacpan.org/pod/Catmandu::Importer),
-[Catmandu::Fix](https://metacpan.org/pod/Catmandu::Fix),
-[Catmandu::Exporter](https://metacpan.org/pod/Catmandu::Exporter),
-[Catmandu::MARC](https://metacpan.org/pod/Catmandu::MARC)
+[Catmandu::Importer](https://metacpan.org/pod/Catmandu%3A%3AImporter),
+[Catmandu::Fix](https://metacpan.org/pod/Catmandu%3A%3AFix),
+[Catmandu::Exporter](https://metacpan.org/pod/Catmandu%3A%3AExporter),
+[Catmandu::MARC](https://metacpan.org/pod/Catmandu%3A%3AMARC)
 
 # AUTHOR
 

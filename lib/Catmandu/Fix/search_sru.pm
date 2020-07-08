@@ -33,37 +33,19 @@ sub _build_fixer {
 
 sub sru_request {
     my ($self, $query) = @_;
-    my $importer;
-    if ($self->total) {
-        $importer = Catmandu->importer(
-            'SRU',
-            base         => $self->base,
-            limit        => $self->limit,
-            parser       => $self->parser,
-            query        => $query,
-            recordSchema => $self->recordschema,
-            total        => $self->total,
-        );
-    } else {
-        $importer = Catmandu->importer(
-            'SRU',
-            base         => $self->base,
-            limit        => $self->limit,
-            parser       => $self->parser,
-            query        => $query,
-            recordSchema => $self->recordschema,
-        );
-    }
-    my $records;
+    my $importer = Catmandu->importer(
+        'SRU',
+        base         => $self->base,
+        limit        => $self->limit,
+        parser       => $self->parser,
+        query        => $query,
+        recordSchema => $self->recordschema,
+        total        => $self->total,
+    );
     if (my $fixes = $self->fixes) {
-        my $fixer = Catmandu->fixer($fixes);
-        $records = $fixer->fix($importer)->to_array;
-
+        $importer = Catmandu->fixer($fixes)->fix($importer);
     }
-    else {
-        $records = $importer->to_array;
-    }
-    return $records;
+    $importer->to_array;
 }
 
 1;
