@@ -34,12 +34,8 @@ has http_client  => (
 has sortKeys => (is => 'ro');
 has parser =>
     (is => 'rw', default => sub {'simple'}, coerce => \&_coerce_parser);
-has limit => (
-    is      => 'ro',
-    isa     => sub {check_natural($_[0]);},
-    lazy    => 1,
-    default => sub {10}
-);
+has limit =>
+    (is => 'ro', isa => \&check_natural, lazy => 1, default => sub {10});
 has total => (is => 'ro');
 
 # internal stuff.

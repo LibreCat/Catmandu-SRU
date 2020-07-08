@@ -1,6 +1,7 @@
 Revision history for Catmandu-SRU
 
 {{$NEXT}}
+  - add total option to constrain the result set
 
 0.428  2019-11-29 11:19:18 CET
   - correctly handle utf8 characters in query
