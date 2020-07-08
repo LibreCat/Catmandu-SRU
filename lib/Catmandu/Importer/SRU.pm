@@ -11,7 +11,7 @@ use XML::LibXML;
 use XML::LibXML::XPathContext;
 use namespace::clean;
 
-our $VERSION = '0.428';
+our $VERSION = '0.429';
 
 with 'Catmandu::Importer';
 
