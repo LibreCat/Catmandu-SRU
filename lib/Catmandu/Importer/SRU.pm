@@ -191,7 +191,8 @@ sub url {
 
     # construct the url
     my $url = $self->base;
-    $url .= '?version=' . uri_escape($self->version);
+    $url .= ($url =~ /\?/ ? '&' : '?');
+    $url .= 'version=' . uri_escape($self->version);
     $url .= '&operation=' . uri_escape($self->operation);
     $url .= '&query=' . uri_escape_utf8($self->query);
     $url .= '&recordSchema=' . uri_escape($self->recordSchema);
